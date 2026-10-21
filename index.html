@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rules">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<title>Rules</title>
+<style>
+  :root {
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --text: #000000;
+    --secondary: #6C6C70;
+    --tertiary: #AEAEB2;
+    --separator: rgba(60, 60, 67, .18);
+    --accent: #5856D6;
+    --green: #34C759;
+    --fill: rgba(120, 120, 128, .12);
+    --bar: rgba(249, 249, 249, .86);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000000;
+      --card: #1C1C1E;
+      --text: #FFFFFF;
+      --secondary: #8E8E93;
+      --tertiary: #48484A;
+      --separator: rgba(84, 84, 88, .55);
+      --accent: #7D7AFF;
+      --green: #30D158;
+      --fill: rgba(120, 120, 128, .24);
+      --bar: rgba(22, 22, 24, .86);
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body {
+    font: 17px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 84px);
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+  .view[hidden] { display: none; }
+
+  header { display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 4px 14px; }
+  .date { color: var(--secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+  h1 { margin: 2px 0 0; font-size: 34px; font-weight: 700; letter-spacing: -.02em; }
+  .ring { position: relative; width: 56px; height: 56px; flex: none; }
+  .ring svg { width: 56px; height: 56px; transform: rotate(-90deg); }
+  .ring circle { fill: none; stroke-width: 6; }
+  .ring .track { stroke: var(--fill); }
+  .ring .value { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .4s ease, stroke .3s; }
+  .ring.done .value { stroke: var(--green); }
+  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  h2 { margin: 26px 16px 7px; font-size: 13px; font-weight: 400; color: var(--secondary); text-transform: uppercase; letter-spacing: .02em; display: flex; justify-content: space-between; }
+  h2 .count { font-variant-numeric: tabular-nums; }
+  .group { background: var(--card); border-radius: 12px; overflow: hidden; }
+  .footnote { margin: 7px 16px 0; font-size: 13px; color: var(--secondary); }
+
+  .row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 16px; position: relative; }
+  .row + .row::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; border-top: .5px solid var(--separator); }
+  .check {
+    flex: none; width: 24px; height: 24px; margin-top: 0; border-radius: 50%;
+    border: 1.5px solid var(--tertiary); background: none; padding: 0; cursor: pointer;
+    display: grid; place-items: center; transition: background .15s, border-color .15s, transform .1s;
+  }
+  .check:active { transform: scale(.88); }
+  .check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
+  .checked .check { background: var(--accent); border-color: var(--accent); }
+  .checked .check svg { opacity: 1; }
+  .row-body { flex: 1; min-width: 0; cursor: pointer; }
+  .title { display: flex; gap: 8px; align-items: baseline; }
+  .title b { font-weight: 400; }
+  .checked .title b { color: var(--secondary); }
+  .num { color: var(--tertiary); font-size: 13px; font-variant-numeric: tabular-nums; min-width: 1.3em; }
+  .detail { display: none; margin-top: 4px; font-size: 15px; color: var(--secondary); }
+  .detail p { margin: 0 0 4px; }
+  .detail .why { color: var(--text); opacity: .75; }
+  .open .detail { display: block; }
+  .chev { flex: none; width: 8px; margin-top: 5px; color: var(--tertiary); transition: transform .2s; }
+  .open .chev { transform: rotate(90deg); }
+
+  .task { display: flex; align-items: center; gap: 12px; padding: 6px 16px; min-height: 46px; position: relative; }
+  .task + .task::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; border-top: .5px solid var(--separator); }
+  .task .check { margin: 0; }
+  .task input, .field input {
+    flex: 1; min-width: 0; border: 0; background: none; color: var(--text); font: inherit; padding: 6px 0; outline: none;
+  }
+  .task input::placeholder, .field input::placeholder { color: var(--tertiary); }
+  .task.checked input { color: var(--secondary); text-decoration: line-through; }
+  .tag { flex: none; font-size: 11px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); padding: 3px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em; }
+
+  .field { display: flex; align-items: center; gap: 12px; padding: 6px 16px; min-height: 46px; position: relative; }
+  .field + .field::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
+  .field label { flex: none; width: 92px; color: var(--secondary); font-size: 15px; }
+
+  .principle { padding: 12px 16px; display: flex; gap: 12px; position: relative; }
+  .principle + .principle::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
+  .principle .n { color: var(--accent); font-weight: 600; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat { background: var(--card); border-radius: 12px; padding: 12px 14px; }
+  .stat .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 13px; color: var(--secondary); }
+
+  .cal { background: var(--card); border-radius: 12px; padding: 14px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-grid .wd { font-size: 11px; color: var(--secondary); text-align: center; font-weight: 600; }
+  .cell { aspect-ratio: 1; border-radius: 7px; background: var(--fill); display: grid; place-items: center; font-size: 12px; color: var(--secondary); font-variant-numeric: tabular-nums; }
+  .cell.empty { background: none; }
+  .cell.l1 { background: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--text); }
+  .cell.l2 { background: color-mix(in srgb, var(--accent) 55%, transparent); color: #fff; }
+  .cell.l3 { background: var(--accent); color: #fff; }
+  .cell.today { outline: 2px solid var(--text); outline-offset: -2px; }
+  .legend { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-top: 10px; font-size: 12px; color: var(--secondary); }
+  .legend .cell { width: 14px; border-radius: 4px; }
+
+  .bars { display: flex; flex-direction: column; }
+  .bar-row { display: flex; align-items: center; gap: 12px; padding: 9px 16px; position: relative; font-size: 15px; }
+  .bar-row + .bar-row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
+  .bar-row .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-row .track { flex: none; width: 80px; height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+  .bar-row .track i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .bar-row .pct { flex: none; width: 38px; text-align: right; color: var(--secondary); font-variant-numeric: tabular-nums; }
+
+  .btn { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--accent); font: inherit; padding: 12px 16px; cursor: pointer; position: relative; }
+  .btn + .btn::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
+  .btn.danger { color: #FF3B30; }
+
+  nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; justify-content: center; gap: 0;
+    padding: 6px 0 calc(env(safe-area-inset-bottom) + 4px);
+    background: var(--bar); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+    border-top: .5px solid var(--separator);
+  }
+  nav button {
+    flex: 1; max-width: 160px; border: 0; background: none; color: var(--secondary); font: 500 10px/1.2 inherit; font-family: inherit;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 2px 0; cursor: pointer;
+  }
+  nav button svg { width: 26px; height: 26px; }
+  nav button[aria-selected="true"] { color: var(--accent); }
+
+  .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 12px); transform: translate(-50%, -150%); background: var(--card); color: var(--text); padding: 10px 16px; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.18); font-size: 15px; font-weight: 600; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); z-index: 20; white-space: nowrap; }
+  .toast.show { transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<main>
+  <section class="view" id="view-today">
+    <header>
+      <div>
+        <div class="date" id="date"></div>
+        <h1>Rules</h1>
+      </div>
+      <div class="ring" id="ring">
+        <svg viewBox="0 0 56 56"><circle class="track" cx="28" cy="28" r="24"/><circle class="value" cx="28" cy="28" r="24"/></svg>
+        <span id="ring-label"></span>
+      </div>
+    </header>
+
+    <h2><span>Heute</span></h2>
+    <div class="group" id="today-plan"></div>
+    <p class="footnote" id="today-hint"></p>
+
+    <div id="sections"></div>
+
+    <h2><span>Tomorrow Setup</span></h2>
+    <div class="group" id="tomorrow-plan"></div>
+    <p class="footnote">Erscheint morgen früh oben unter „Heute“.</p>
+
+    <h2><span>Die drei Prinzipien</span></h2>
+    <div class="group" id="principles"></div>
+  </section>
+
+  <section class="view" id="view-history" hidden>
+    <header><div><div class="date">Rückblick</div><h1>Verlauf</h1></div></header>
+    <div class="stats" id="stats"></div>
+    <p class="footnote">Ein Tag zählt als geschafft ab <span id="threshold"></span> von 18 Regeln.</p>
+
+    <h2><span id="cal-title"></span></h2>
+    <div class="cal" id="cal"></div>
+
+    <h2><span>Regeln · letzte 30 Tage</span></h2>
+    <div class="group bars" id="bars"></div>
+
+    <h2><span>Daten</span></h2>
+    <div class="group">
+      <button class="btn" id="export">Backup exportieren</button>
+      <button class="btn" id="import">Backup importieren</button>
+    </div>
+    <p class="footnote">Deine Daten liegen nur auf diesem iPhone. Ein Backup sichert sie als Datei, z. B. in iCloud Drive.</p>
+    <input type="file" id="import-file" accept="application/json,.json" hidden>
+  </section>
+</main>
+
+<nav>
+  <button data-view="today" aria-selected="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M8 12.2l2.7 2.6L16 9.5"/></svg>
+    Heute
+  </button>
+  <button data-view="history" aria-selected="false">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg>
+    Verlauf
+  </button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTIONS = [
+  { title: "🌅 Morgens", rules: [
+    ["Feste Aufstehzeit", "Möglichst jeden Tag zur gleichen Zeit aufstehen und nicht snoozen.", "Ein stabiler Rhythmus erleichtert das Aufstehen und gibt dem Tag einen festen Startpunkt."],
+    ["Wecker außer Reichweite", "Wecker so platzieren, dass du zum Ausschalten aufstehen musst.", "Verhindert den automatischen „noch 10 Minuten“-Reflex."],
+    ["Sofort Licht", "Direkt nach dem Aufstehen Tageslicht suchen bzw. Rollläden öffnen und Licht einschalten.", "Helles Morgenlicht unterstützt die innere Uhr und fördert Wachheit."],
+    ["Wasser trinken", "Direkt nach dem Aufstehen ca. 300–500 ml Wasser trinken.", "Gleicht Flüssigkeitsverlust über Nacht aus und hilft, in den Tag zu kommen."],
+    ["30 Minuten No-Screen", "Die ersten 30 Minuten kein Social Media, News, YouTube oder andere stimulierende Inhalte.", "Verhindert, dass der Tag direkt mit Ablenkung und passivem Konsum beginnt."],
+    ["Keine Entscheidungen am Morgen", "Der erste Arbeitsschritt steht bereits am Vorabend fest.", "Du musst morgens nicht überlegen, womit du anfangen sollst."],
+    ["Must-Win sofort starten", "Nach der Morgenroutine direkt mit der wichtigsten Aufgabe beginnen.", "Nutzt die erste verfügbare Fokusphase für das Wichtigste statt für Kleinigkeiten."],
+  ]},
+  { title: "☀️ Tagsüber", rules: [
+    ["Must-Win-Task", "Jeden Tag gibt es eine wichtigste Aufgabe, die unbedingt erledigt werden soll.", "Verhindert, dass eine lange To-do-Liste zu Überforderung und Aufschieben führt."],
+    ["Maximal Top 3", "Neben der Must-Win-Task maximal zwei weitere wichtige Aufgaben festlegen.", "Hält den Tagesplan realistisch und verhindert Überplanung."],
+    ["Time Boxing", "Wichtige Aufgaben mit festen Start- und Endzeiten in den Kalender eintragen.", "Aus „Ich muss das heute machen“ wird ein konkreter Termin."],
+    ["Single-Tasking", "Während eines Fokusblocks nur eine Aufgabe bearbeiten. Smartphone außer Reichweite.", "Reduziert Ablenkung und unnötige Kontextwechsel."],
+    ["5-Minuten-Startregel", "Wenn du eine Aufgabe aufschiebst, verpflichtest du dich nur zu 5 Minuten Startzeit.", "Senkt die psychologische Einstiegshürde."],
+    ["Ablenkungs-Parkplatz", "Alles, was dir während der Arbeit einfällt, sofort notieren und später bearbeiten.", "Du musst den Gedanken nicht verfolgen und verlierst ihn trotzdem nicht."],
+    ["Fester Sporttermin", "Sport möglichst zu einer festen Uhrzeit durchführen.", "Macht Training zu einem festen Bestandteil des Tages und verhindert, dass es immer weiter nach hinten rutscht."],
+  ]},
+  { title: "🌙 Abends", rules: [
+    ["Arbeits- und Digitalabschluss", "Browser-Tabs schließen, Desktop aufräumen und offene Aufgaben notieren.", "Schafft einen klaren Abschluss und reduziert mentale Unordnung."],
+    ["Tomorrow Setup", "Must-Win-Task, Top 3 und erste Fokusblöcke für den nächsten Tag festlegen.", "Der nächste Tag beginnt nicht mit Entscheidungen, sondern mit Ausführung."],
+    ["Keine großen Mahlzeiten kurz vor dem Schlafen", "Idealerweise die letzte größere Mahlzeit etwa 2–3 Stunden vor dem Schlafengehen.", "Kann Verdauungsbeschwerden reduzieren und den Schlafkomfort verbessern."],
+    ["Digitaler Hard Cut", "Idealerweise 60 Minuten vor dem Schlafen keine stimulierenden digitalen Inhalte.", "Hilft dabei, geistig herunterzufahren und die Schlafvorbereitung zu unterstützen."],
+  ]},
+];
+const PRINCIPLES = [
+  "Abends entscheiden → morgens ausführen.",
+  "Weniger planen → konsequenter umsetzen.",
+  "Nicht auf Motivation warten → feste Regeln befolgen.",
+];
+const TOTAL = SECTIONS.reduce((n, s) => n + s.rules.length, 0);
+const THRESHOLD = 15;
+const STORE_KEY = "rules.v1";
+const CHECK_SVG = '<svg viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.3l2.6 2.5L11 4.4"/></svg>';
+const CHEV_SVG = '<svg class="chev" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5L6.5 6.5L1.5 11.5"/></svg>';
+
+// ---------- storage ----------
+let state = load();
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY));
+    if (s && s.days) return s;
+  } catch (e) {}
+  return { days: {} };
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function day(key) {
+  if (!state.days[key]) state.days[key] = { checks: [], plan: emptyPlan() };
+  const d = state.days[key];
+  if (!d.plan) d.plan = emptyPlan();
+  if (!d.checks) d.checks = [];
+  return d;
+}
+function emptyPlan() {
+  return { mustWin: { text: "", done: false }, top: [{ text: "", done: false }, { text: "", done: false }], focus: "" };
+}
+
+// ---------- dates ----------
+const pad = n => String(n).padStart(2, "0");
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+let todayKey = keyOf(new Date());
+
+// ---------- render: today ----------
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function renderToday() {
+  todayKey = keyOf(new Date());
+  $("date").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+
+  let n = 0;
+  $("sections").innerHTML = SECTIONS.map(sec => {
+    const rows = sec.rules.map(([title, what, why]) => {
+      const id = n++;
+      return `<div class="row" data-rule="${id}">
+        <button class="check" aria-label="${esc(title)} abhaken">${CHECK_SVG}</button>
+        <div class="row-body">
+          <div class="title"><span class="num">${id + 1}</span><b>${esc(title)}</b></div>
+          <div class="detail"><p>${esc(what)}</p><p class="why">→ ${esc(why)}</p></div>
+        </div>
+        ${CHEV_SVG}
+      </div>`;
+    }).join("");
+    return `<h2><span>${sec.title}</span><span class="count" data-count></span></h2><div class="group">${rows}</div>`;
+  }).join("");
+
+  $("principles").innerHTML = PRINCIPLES.map((p, i) => `<div class="principle"><span class="n">${i + 1}</span><span>${esc(p)}</span></div>`).join("");
+
+  renderPlan($("today-plan"), todayKey, true);
+  renderPlan($("tomorrow-plan"), keyOf(addDays(parseKey(todayKey), 1)), false);
+  updateChecks();
+}
+
+function renderPlan(el, key, withChecks) {
+  const plan = day(key).plan;
+  const items = [["Must-Win", plan.mustWin, "Wichtigste Aufgabe"], ["Top 2", plan.top[0], "Zweite Aufgabe"], ["Top 3", plan.top[1], "Dritte Aufgabe"]];
+  let html = items.map(([tag, item, ph], i) => withChecks
+    ? `<div class="task${item.done ? " checked" : ""}" data-i="${i}">
+         <button class="check" aria-label="${tag} erledigt">${CHECK_SVG}</button>
+         <input value="${esc(item.text)}" placeholder="${ph}" enterkeyhint="done">
+         ${i === 0 ? '<span class="tag">Must-Win</span>' : ""}
+       </div>`
+    : `<div class="field" data-i="${i}"><label>${tag}</label><input value="${esc(item.text)}" placeholder="${ph}" enterkeyhint="done"></div>`
+  ).join("");
+  html += withChecks
+    ? (plan.focus ? `<div class="field"><label>Fokusblock</label><input data-focus value="${esc(plan.focus)}" placeholder="z. B. 08:00–10:00"></div>` : "")
+    : `<div class="field"><label>Fokusblock</label><input data-focus value="${esc(plan.focus)}" placeholder="z. B. 08:00–10:00" enterkeyhint="done"></div>`;
+  el.innerHTML = html;
+  el.dataset.key = key;
+
+  if (withChecks) {
+    const filled = plan.mustWin.text.trim();
+    $("today-hint").textContent = filled ? "" : "Noch nichts geplant. Trag es hier ein – oder heute Abend für morgen.";
+    $("today-hint").hidden = !!filled;
+  }
+}
+
+function planItem(plan, i) { return i === 0 ? plan.mustWin : plan.top[i - 1]; }
+
+function updateChecks() {
+  const checks = new Set(day(todayKey).checks);
+  document.querySelectorAll("[data-rule]").forEach(r => r.classList.toggle("checked", checks.has(+r.dataset.rule)));
+  let start = 0;
+  document.querySelectorAll("[data-count]").forEach((c, i) => {
+    const len = SECTIONS[i].rules.length;
+    let done = 0;
+    for (let k = start; k < start + len; k++) if (checks.has(k)) done++;
+    c.textContent = `${done}/${len}`;
+    start += len;
+  });
+  const done = checks.size, r = 24, circ = 2 * Math.PI * r;
+  const v = document.querySelector(".ring .value");
+  v.style.strokeDasharray = circ;
+  v.style.strokeDashoffset = circ * (1 - done / TOTAL);
+  $("ring").classList.toggle("done", done === TOTAL);
+  $("ring-label").textContent = `${done}/${TOTAL}`;
+}
+
+// ---------- events: today ----------
+$("sections").addEventListener("click", e => {
+  const row = e.target.closest("[data-rule]");
+  if (!row) return;
+  if (e.target.closest(".check")) {
+    const id = +row.dataset.rule, d = day(todayKey);
+    const had = d.checks.includes(id);
+    d.checks = had ? d.checks.filter(x => x !== id) : [...d.checks, id];
+    save();
+    updateChecks();
+    if (!had && d.checks.length === TOTAL) toast("Alle 18 Regeln geschafft 🎉");
+    else if (!had && d.checks.length === THRESHOLD) toast("Tag geschafft ✓");
+  } else {
+    row.classList.toggle("open");
+  }
+});
+
+function bindPlan(el) {
+  el.addEventListener("input", e => {
+    const plan = day(el.dataset.key).plan;
+    if (e.target.dataset.focus !== undefined) plan.focus = e.target.value;
+    else planItem(plan, +e.target.closest("[data-i]").dataset.i).text = e.target.value;
+    save();
+  });
+  el.addEventListener("click", e => {
+    const btn = e.target.closest(".check");
+    if (!btn) return;
+    const row = btn.closest("[data-i]");
+    const item = planItem(day(el.dataset.key).plan, +row.dataset.i);
+    item.done = !item.done;
+    row.classList.toggle("checked", item.done);
+    save();
+    if (item.done && row.dataset.i === "0") toast("Must-Win erledigt 💪");
+  });
+  el.addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
+}
+bindPlan($("today-plan"));
+bindPlan($("tomorrow-plan"));
+$("today-plan").addEventListener("input", () => {
+  $("today-hint").hidden = !!day(todayKey).plan.mustWin.text.trim();
+});
+
+// ---------- history ----------
+function scoreOf(key) { const d = state.days[key]; return d ? d.checks.length : 0; }
+function isWin(key) { return scoreOf(key) >= THRESHOLD; }
+
+function renderHistory() {
+  const today = parseKey(todayKey);
+  let streak = 0, cur = isWin(todayKey) ? today : addDays(today, -1);
+  while (isWin(keyOf(cur))) { streak++; cur = addDays(cur, -1); }
+
+  let best = 0, run = 0;
+  const keys = Object.keys(state.days).filter(k => scoreOf(k) > 0).sort();
+  if (keys.length) {
+    for (let d = parseKey(keys[0]); d <= today; d = addDays(d, 1)) {
+      run = isWin(keyOf(d)) ? run + 1 : 0;
+      best = Math.max(best, run);
+    }
+  }
+
+  let sum = 0;
+  for (let i = 0; i < 7; i++) sum += scoreOf(keyOf(addDays(today, -i)));
+  const avg = Math.round(sum / 7 / TOTAL * 100);
+
+  $("stats").innerHTML = [
+    [streak, streak === 1 ? "Tag in Folge" : "Tage in Folge"],
+    [best, "Bestwert"],
+    [avg + "%", "Ø 7 Tage"],
+  ].map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  $("threshold").textContent = THRESHOLD;
+
+  const first = new Date(today.getFullYear(), today.getMonth(), 1);
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  $("cal-title").textContent = today.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+  let cells = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"].map(w => `<div class="wd">${w}</div>`).join("");
+  cells += '<div class="cell empty"></div>'.repeat((first.getDay() + 6) % 7);
+  for (let i = 1; i <= daysInMonth; i++) {
+    const k = keyOf(new Date(today.getFullYear(), today.getMonth(), i));
+    const s = scoreOf(k);
+    const lvl = s === 0 ? "" : s >= THRESHOLD ? "l3" : s >= TOTAL / 2 ? "l2" : "l1";
+    cells += `<div class="cell ${lvl}${k === todayKey ? " today" : ""}">${i}</div>`;
+  }
+  $("cal").innerHTML = `<div class="cal-grid">${cells}</div>
+    <div class="legend">weniger <span class="cell"></span><span class="cell l1"></span><span class="cell l2"></span><span class="cell l3"></span> mehr</div>`;
+
+  const counts = new Array(TOTAL).fill(0);
+  for (let i = 0; i < 30; i++) {
+    const d = state.days[keyOf(addDays(today, -i))];
+    if (d) d.checks.forEach(id => counts[id]++);
+  }
+  const names = SECTIONS.flatMap(s => s.rules.map(r => r[0]));
+  $("bars").innerHTML = names.map((name, i) => {
+    const pct = Math.round(counts[i] / 30 * 100);
+    return `<div class="bar-row"><span class="name">${esc(name)}</span><span class="track"><i style="width:${pct}%"></i></span><span class="pct">${pct}%</span></div>`;
+  }).join("");
+}
+
+// ---------- backup ----------
+$("export").addEventListener("click", async () => {
+  const name = `rules-backup-${todayKey}.json`;
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+  const file = new File([blob], name, { type: "application/json" });
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); } catch (e) {}
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("import").addEventListener("click", () => $("import-file").click());
+$("import-file").addEventListener("change", async e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (!data || typeof data.days !== "object") throw new Error();
+    if (!confirm("Backup importieren? Die aktuellen Daten werden ersetzt.")) return;
+    state = data;
+    save();
+    renderToday();
+    renderHistory();
+    toast("Backup importiert");
+  } catch (err) {
+    alert("Diese Datei ist kein gültiges Rules-Backup.");
+  }
+});
+
+// ---------- nav, toast, lifecycle ----------
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
+  $("view-today").hidden = b.dataset.view !== "today";
+  $("view-history").hidden = b.dataset.view !== "history";
+  if (b.dataset.view === "history") renderHistory();
+  window.scrollTo(0, 0);
+}));
+
+let toastTimer;
+function toast(msg) {
+  $("toast").textContent = msg;
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1800);
+}
+
+function refreshIfNewDay() {
+  if (keyOf(new Date()) !== todayKey) { renderToday(); if (!$("view-history").hidden) renderHistory(); }
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshIfNewDay(); });
+setInterval(refreshIfNewDay, 60000);
+
+renderToday();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
