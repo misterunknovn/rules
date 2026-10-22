@@ -31,6 +31,7 @@
     --evening: #5b4bb7;
     --evening-bg: #e6e2f7;
     --done: #1b8a5a;
+    --danger: #d64545;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -47,6 +48,7 @@
       --evening: #9d90ee;
       --evening-bg: #25214a;
       --done: #4fc98d;
+      --danger: #f07070;
     }
   }
   :root[data-theme="dark"] {
@@ -63,6 +65,7 @@
     --evening: #9d90ee;
     --evening-bg: #25214a;
     --done: #4fc98d;
+    --danger: #f07070;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { scroll-padding-top: env(safe-area-inset-top, 0px); }
@@ -71,24 +74,26 @@
     background: var(--bg);
     color: var(--ink);
     font-family: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
   }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 56px; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 18px 16px 56px; }
   .view[hidden] { display: none; }
 
   /* Kopf */
-  .date { font-size: 15px; color: var(--ink-soft); margin: 4px 0 2px; }
-  h1 { font-size: 34px; line-height: 1.1; margin: 0 0 18px; font-weight: 800; letter-spacing: -0.02em; }
-  .count { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-  .count .big { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-  .count .of { font-size: 18px; color: var(--ink-soft); }
-  .count .msg { margin-left: auto; font-size: 14px; color: var(--ink-soft); text-align: right; max-width: 14em; }
+  .date { font-size: 14px; color: var(--ink-soft); margin: 4px 0 2px; }
+  .title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+  h1 { font-size: 30px; line-height: 1.1; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+  .count { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .count .big { font-size: 46px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .count .of { font-size: 16px; color: var(--ink-soft); }
+  .count .msg { margin-left: auto; font-size: 13px; color: var(--ink-soft); text-align: right; max-width: 14em; }
 
   /* Segmentleiste */
-  .bar { display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; margin-bottom: 26px; }
-  .bar i { height: 10px; border-radius: 3px; background: var(--line); transition: background .25s, transform .25s; }
+  .bar { display: grid; gap: 3px; margin-bottom: 24px; }
+  .bar i { height: 9px; border-radius: 3px; background: var(--line); transition: background .25s, transform .25s; }
   .bar i.on.morning { background: var(--morning); }
   .bar i.on.day { background: var(--day); }
   .bar i.on.evening { background: var(--evening); }
@@ -96,95 +101,112 @@
 
   /* Checkbox */
   .check {
-    flex: none; width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--ink-soft);
+    flex: none; width: 30px; height: 30px; border-radius: 9px; border: 2px solid var(--ink-soft);
     background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0; margin-top: 1px;
     transition: background .15s, border-color .15s, transform .15s;
   }
   .check:active { transform: scale(.92); }
-  .check svg { width: 20px; height: 20px; stroke: #fff; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+  .check svg { width: 18px; height: 18px; stroke: #fff; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
   .done > .check { background: var(--done); border-color: var(--done); }
   .done > .check svg { opacity: 1; transform: scale(1); }
 
-  /* Fokus-Karte */
-  .plan { background: var(--surface); border-radius: 16px; padding: 14px 14px 8px; margin-bottom: 26px; }
-  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-  .card-head h2, .card h2 { margin: 0; font-size: 16px; font-weight: 700; }
-  .tabs { display: flex; gap: 4px; background: var(--bg); padding: 3px; border-radius: 10px; }
-  .tabs button { border: 0; background: none; color: var(--ink-soft); font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
-  .tabs button.on { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 1px var(--line); }
-  .hint { margin: 0 0 6px; font-size: 13px; color: var(--ink-soft); }
-  .task { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
-  .task.must { border-left: 3px solid var(--morning); padding-left: 10px; }
-  .task input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; padding: 8px 0; outline: none; }
-  .task input::placeholder { color: var(--ink-soft); }
-  .task input:focus-visible { box-shadow: 0 2px 0 var(--day); }
-  .task.must input { font-weight: 700; font-size: 17px; }
+  /* Karten */
+  .card { background: var(--surface); border-radius: 16px; padding: 14px 14px 8px; margin-bottom: 24px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+  .card h2 { margin: 0; font-size: 15px; font-weight: 700; }
+  .hint { margin: 0 0 6px; font-size: 12px; color: var(--ink-soft); }
+  .link { border: 0; background: none; color: var(--day); font: inherit; font-size: 15px; font-weight: 500; padding: 4px 0; cursor: pointer; border-radius: 6px; }
+  .link.strong { font-weight: 700; }
+
+  /* Heute: Must-Win + Top 3 */
+  .task { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid var(--line); }
+  .task input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; padding: 7px 0; outline: none; }
+  .task input::placeholder, .field input::placeholder { color: var(--ink-soft); opacity: .7; }
+  .task input:focus-visible, .field input:focus-visible { box-shadow: 0 2px 0 var(--day); }
+  .task.must input { font-weight: 700; }
   .task.done input { text-decoration: line-through; color: var(--ink-soft); }
-  .task label { flex: none; width: 34px; display: grid; place-items: center; color: var(--ink-soft); }
-  .task label svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+  .task .icon { flex: none; width: 30px; display: grid; place-items: center; color: var(--ink-soft); }
+  .task .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+  .tag { flex: none; font-size: 11px; font-weight: 700; color: var(--morning); background: var(--morning-bg); padding: 3px 7px; border-radius: 6px; }
+
+  /* Tomorrow Setup */
+  .field { display: flex; align-items: center; gap: 12px; padding: 4px 0; border-top: 1px solid var(--line); }
+  .field label { flex: none; width: 84px; color: var(--ink-soft); font-size: 14px; }
+  .field input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; padding: 9px 0; outline: none; }
+  .field.must input { font-weight: 700; }
+  .note { margin: -16px 4px 24px; font-size: 12px; color: var(--ink-soft); }
 
   /* Abschnitte */
-  .phase { margin-bottom: 26px; }
-  .phase-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; }
+  .phase { margin-bottom: 24px; }
+  .phase-head { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 12px; margin-bottom: 6px; }
   .phase.morning .phase-head { background: var(--morning-bg); }
   .phase.day .phase-head { background: var(--day-bg); }
   .phase.evening .phase-head { background: var(--evening-bg); }
-  .phase-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
-  .phase-head .n { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; }
+  .phase-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .phase-head .n { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14px; }
   .phase.morning .n { color: var(--morning); }
   .phase.day .n { color: var(--day); }
   .phase.evening .n { color: var(--evening); }
   .phase.complete .phase-head .n::after { content: " ✓"; }
+  .empty-phase { margin: 4px 4px 0; font-size: 13px; color: var(--ink-soft); }
 
-  .rule { display: flex; align-items: flex-start; gap: 12px; padding: 12px 6px 12px 4px; border-bottom: 1px solid var(--line); }
+  .rule { display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px 10px 4px; border-bottom: 1px solid var(--line); }
   .rule:last-child { border-bottom: 0; }
   .body { flex: 1; min-width: 0; cursor: pointer; }
-  .title { font-weight: 700; font-size: 17px; }
-  .text { color: var(--ink-soft); font-size: 15px; margin-top: 1px; }
+  .title { font-weight: 700; font-size: 15px; }
+  .text { color: var(--ink-soft); font-size: 14px; margin-top: 1px; }
   .rule.done .title { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--ink-soft); color: var(--ink-soft); }
   .rule.done .text { opacity: .6; }
-  .why-btn { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: none; border: 0; color: var(--ink-soft); cursor: pointer; border-radius: 8px; padding: 0; }
-  .why-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+  .icon-btn { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: none; border: 0; color: var(--ink-soft); cursor: pointer; border-radius: 8px; padding: 0; }
+  .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+  .icon-btn:disabled { opacity: .3; cursor: default; }
   .rule.open .why-btn svg { transform: rotate(180deg); }
-  .why { display: none; margin-top: 8px; padding: 8px 12px; background: var(--surface); border-left: 3px solid var(--line); border-radius: 0 8px 8px 0; font-size: 14px; }
+  .why { display: none; margin-top: 8px; padding: 7px 11px; background: var(--surface); border-left: 3px solid var(--line); border-radius: 0 8px 8px 0; font-size: 13px; }
   .rule.open .why { display: block; }
   .phase.morning .why { border-left-color: var(--morning); }
   .phase.day .why { border-left-color: var(--day); }
   .phase.evening .why { border-left-color: var(--evening); }
 
+  /* Bearbeiten */
+  .edit-hint { margin: -10px 4px 20px; font-size: 13px; color: var(--ink-soft); }
+  .rule.editing { align-items: center; gap: 6px; }
+  .rule.editing .body { padding: 0 6px; }
+  .del-btn { color: var(--danger); }
+  .del-btn svg { width: 22px; height: 22px; stroke-width: 2; }
+  .moves { flex: none; display: flex; }
+  .add { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 4px; padding: 10px 4px; border: 0; background: none; color: var(--day); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; border-radius: 8px; text-align: left; }
+  .add svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; }
+
   button:focus-visible { outline: 3px solid var(--day); outline-offset: 2px; }
 
-  /* Karten */
-  .card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 26px; }
-  .card .card-head { margin-bottom: 12px; }
-  .link { border: 0; background: none; color: var(--day); font: inherit; font-size: 15px; font-weight: 500; padding: 4px 0; cursor: pointer; border-radius: 6px; }
-
   /* Woche */
+  .week { padding-bottom: 14px; }
+  .week .card-head { margin-bottom: 10px; }
   .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; }
   .d { text-align: center; font-size: 12px; color: var(--ink-soft); }
-  .d .col { height: 56px; background: var(--line); border-radius: 6px; position: relative; overflow: hidden; margin-bottom: 6px; }
+  .d .col { height: 50px; background: var(--line); border-radius: 6px; position: relative; overflow: hidden; margin-bottom: 6px; }
   .d .col b { position: absolute; left: 0; right: 0; bottom: 0; background: var(--done); border-radius: 6px 6px 0 0; transition: height .3s; }
   .d.today { color: var(--ink); font-weight: 700; }
   .d .num { display: block; font-variant-numeric: tabular-nums; font-size: 11px; }
 
   /* Prinzipien */
-  .principles { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 18px 18px 6px; margin-bottom: 20px; }
-  .principles h2 { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+  .principles { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px 16px 4px; margin-bottom: 20px; }
+  .principles h2 { margin: 0 0 8px; font-size: 15px; font-weight: 700; }
   .principles ol { margin: 0; padding: 0; list-style: none; }
-  .principles li { padding: 12px 0; border-top: 1px solid rgba(128,128,128,.35); font-size: 20px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
+  .principles li { padding: 11px 0; border-top: 1px solid rgba(128,128,128,.35); font-size: 17px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
   .principles li:first-child { border-top: 0; }
 
-  .reset { display: block; margin: 0 auto; background: none; border: 1px solid var(--line); color: var(--ink-soft); font: inherit; font-size: 14px; padding: 10px 18px; border-radius: 10px; cursor: pointer; }
+  .reset { display: block; margin: 0 auto; background: none; border: 1px solid var(--line); color: var(--ink-soft); font: inherit; font-size: 13px; padding: 9px 16px; border-radius: 10px; cursor: pointer; }
 
   /* Verlauf */
   .back { display: inline-flex; align-items: center; gap: 2px; margin: 0 0 6px -6px; min-height: 34px; }
-  .back svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .back svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
-  .stat { background: var(--surface); border-radius: 16px; padding: 14px; }
-  .stat .v { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .stat .l { font-size: 13px; color: var(--ink-soft); }
-  .note { margin: 0 0 26px; font-size: 13px; color: var(--ink-soft); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .stat { background: var(--surface); border-radius: 16px; padding: 12px; }
+  .stat .v { font-size: 24px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; color: var(--ink-soft); }
+  .stats-note { margin: 0 4px 24px; font-size: 12px; color: var(--ink-soft); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
   .cal-grid .wd { font-size: 12px; color: var(--ink-soft); text-align: center; }
   .cell { aspect-ratio: 1; border-radius: 8px; background: var(--line); display: grid; place-items: center; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .cell.empty { background: none; }
@@ -192,19 +214,42 @@
   .cell.l2 { background: color-mix(in srgb, var(--done) 60%, var(--surface)); color: var(--ink); }
   .cell.l3 { background: var(--done); color: #fff; }
   .cell.today { font-weight: 700; box-shadow: inset 0 0 0 2px var(--ink); }
-  .legend { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-top: 12px; font-size: 12px; color: var(--ink-soft); }
+  .legend { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin: 12px 0 6px; font-size: 12px; color: var(--ink-soft); }
   .legend .cell { width: 14px; border-radius: 4px; }
-  .stat-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 15px; }
-  .stat-row:first-of-type { border-top: 0; }
+  .stat-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .stat-row:first-child { border-top: 0; }
   .stat-row .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .stat-row .track { flex: none; width: 80px; height: 10px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .stat-row .track { flex: none; width: 80px; height: 9px; border-radius: 3px; background: var(--line); overflow: hidden; }
   .stat-row .track i { display: block; height: 100%; border-radius: 3px; }
   .stat-row.morning .track i { background: var(--morning); }
   .stat-row.day .track i { background: var(--day); }
   .stat-row.evening .track i { background: var(--evening); }
   .stat-row .pct { flex: none; width: 40px; text-align: right; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; }
   .actions .reset { margin: 0; color: var(--ink); }
+
+  /* Regel-Editor */
+  dialog {
+    border: 0; padding: 0; width: 100%; max-width: 640px; margin: auto auto 0;
+    background: var(--surface); color: var(--ink); border-radius: 16px 16px 0 0;
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, .45); }
+  dialog form { padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sheet-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .sheet-field { display: block; margin-bottom: 12px; }
+  .sheet-field span { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+  .sheet-field input, .sheet-field textarea {
+    width: 100%; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    font: inherit; font-size: 16px; padding: 9px 11px; border-radius: 10px; outline: none; resize: none;
+  }
+  .sheet-field input:focus-visible, .sheet-field textarea:focus-visible { border-color: var(--day); }
+  .tabs { display: flex; gap: 4px; background: var(--bg); padding: 3px; border-radius: 10px; }
+  .tabs button { flex: 1; border: 0; background: none; color: var(--ink-soft); font: inherit; font-size: 14px; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .tabs button.on { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 1px var(--line); }
+  .sheet-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .sheet-actions button { flex: 1; font: inherit; font-size: 15px; font-weight: 700; padding: 11px; border-radius: 10px; cursor: pointer; border: 1px solid var(--line); background: none; color: var(--ink); }
+  .sheet-actions .primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -215,30 +260,34 @@
 <div class="wrap">
   <section class="view" id="view-today">
     <div class="date" id="date"></div>
-    <h1>Rules</h1>
+    <div class="title-row">
+      <h1>Rules</h1>
+      <button class="link" type="button" id="edit-toggle">Bearbeiten</button>
+    </div>
 
     <div class="count">
       <span class="big" id="big">0</span>
-      <span class="of">von 18</span>
+      <span class="of" id="of"></span>
       <span class="msg" id="msg"></span>
     </div>
     <div class="bar" id="bar" aria-hidden="true"></div>
 
-    <section class="plan" id="plan">
-      <div class="card-head">
-        <h2>Fokus</h2>
-        <div class="tabs">
-          <button type="button" data-tab="today" class="on" aria-pressed="true">Heute</button>
-          <button type="button" data-tab="tomorrow" aria-pressed="false">Morgen</button>
-        </div>
-      </div>
-      <p class="hint" id="plan-hint"></p>
-      <div id="tasks"></div>
+    <section class="card" id="today-card">
+      <div class="card-head"><h2>Heute</h2></div>
+      <p class="hint" id="today-hint" hidden>Noch nichts geplant. Trag es hier ein – oder heute Abend für morgen.</p>
+      <div id="today-plan"></div>
     </section>
 
+    <p class="edit-hint" id="edit-hint" hidden>Tippe auf eine Regel, um sie zu ändern. Mit den Pfeilen verschiebst du sie, auch in einen anderen Abschnitt.</p>
     <div id="phases"></div>
 
-    <section class="card">
+    <section class="card" id="tomorrow-card">
+      <div class="card-head"><h2>Tomorrow Setup</h2></div>
+      <div id="tomorrow-plan"></div>
+    </section>
+    <p class="note">Erscheint morgen früh oben unter „Heute“.</p>
+
+    <section class="card week">
       <div class="card-head">
         <h2>Letzte 7 Tage</h2>
         <button class="link" type="button" id="open-history">Verlauf</button>
@@ -258,9 +307,9 @@
     <button class="link back" type="button" id="close-history">
       <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Heute
     </button>
-    <h1>Verlauf</h1>
+    <div class="title-row"><h1>Verlauf</h1></div>
     <div class="stats" id="stats"></div>
-    <p class="note">Ein Tag zählt als geschafft ab <span id="threshold"></span> von 18 Regeln.</p>
+    <p class="stats-note" id="threshold-note"></p>
 
     <section class="card">
       <div class="card-head"><h2 id="cal-title"></h2></div>
@@ -284,55 +333,86 @@
   </section>
 </div>
 
+<dialog id="editor">
+  <form method="dialog" id="editor-form">
+    <div class="sheet-head">
+      <h2 id="editor-title">Regel bearbeiten</h2>
+    </div>
+    <label class="sheet-field"><span>Titel</span><input name="rtitle" required maxlength="80" autocomplete="off"></label>
+    <label class="sheet-field"><span>Beschreibung</span><textarea name="rtext" rows="2" maxlength="300"></textarea></label>
+    <label class="sheet-field"><span>Begründung</span><textarea name="rwhy" rows="2" maxlength="300"></textarea></label>
+    <div class="sheet-field"><span>Abschnitt</span><div class="tabs" id="editor-phase"></div></div>
+    <div class="sheet-actions">
+      <button type="button" id="editor-cancel">Abbrechen</button>
+      <button type="submit" class="primary">Sichern</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
-const SECTIONS = [
-  { id: "morning", title: "🌅 Morgens", rules: [
-    ["Feste Aufstehzeit", "Möglichst jeden Tag zur gleichen Zeit aufstehen und nicht snoozen.", "Ein stabiler Rhythmus erleichtert das Aufstehen und gibt dem Tag einen festen Startpunkt."],
-    ["Wecker außer Reichweite", "Wecker so platzieren, dass du zum Ausschalten aufstehen musst.", "Verhindert den automatischen „noch 10 Minuten“-Reflex."],
-    ["Sofort Licht", "Direkt nach dem Aufstehen Tageslicht suchen bzw. Rollläden öffnen und Licht einschalten.", "Helles Morgenlicht unterstützt die innere Uhr und fördert Wachheit."],
-    ["Wasser trinken", "Direkt nach dem Aufstehen ca. 300–500 ml Wasser trinken.", "Gleicht Flüssigkeitsverlust über Nacht aus und hilft, in den Tag zu kommen."],
-    ["30 Minuten No-Screen", "Die ersten 30 Minuten kein Social Media, News, YouTube oder andere stimulierende Inhalte.", "Verhindert, dass der Tag direkt mit Ablenkung und passivem Konsum beginnt."],
-    ["Keine Entscheidungen am Morgen", "Der erste Arbeitsschritt steht bereits am Vorabend fest.", "Du musst morgens nicht überlegen, womit du anfangen sollst."],
-    ["Must-Win sofort starten", "Nach der Morgenroutine direkt mit der wichtigsten Aufgabe beginnen.", "Nutzt die erste verfügbare Fokusphase für das Wichtigste statt für Kleinigkeiten."],
-  ]},
-  { id: "day", title: "☀️ Tagsüber", rules: [
-    ["Must-Win-Task", "Jeden Tag gibt es eine wichtigste Aufgabe, die unbedingt erledigt werden soll.", "Verhindert, dass eine lange To-do-Liste zu Überforderung und Aufschieben führt."],
-    ["Maximal Top 3", "Neben der Must-Win-Task maximal zwei weitere wichtige Aufgaben festlegen.", "Hält den Tagesplan realistisch und verhindert Überplanung."],
-    ["Time Boxing", "Wichtige Aufgaben mit festen Start- und Endzeiten in den Kalender eintragen.", "Aus „Ich muss das heute machen“ wird ein konkreter Termin."],
-    ["Single-Tasking", "Während eines Fokusblocks nur eine Aufgabe bearbeiten. Smartphone außer Reichweite.", "Reduziert Ablenkung und unnötige Kontextwechsel."],
-    ["5-Minuten-Startregel", "Wenn du eine Aufgabe aufschiebst, verpflichtest du dich nur zu 5 Minuten Startzeit.", "Senkt die psychologische Einstiegshürde."],
-    ["Ablenkungs-Parkplatz", "Alles, was dir während der Arbeit einfällt, sofort notieren und später bearbeiten.", "Du musst den Gedanken nicht verfolgen und verlierst ihn trotzdem nicht."],
-    ["Fester Sporttermin", "Sport möglichst zu einer festen Uhrzeit durchführen.", "Macht Training zu einem festen Bestandteil des Tages und verhindert, dass es immer weiter nach hinten rutscht."],
-  ]},
-  { id: "evening", title: "🌙 Abends", rules: [
-    ["Arbeits- und Digitalabschluss", "Browser-Tabs schließen, Desktop aufräumen und offene Aufgaben notieren.", "Schafft einen klaren Abschluss und reduziert mentale Unordnung."],
-    ["Tomorrow Setup", "Must-Win-Task, Top 3 und erste Fokusblöcke für den nächsten Tag festlegen.", "Der nächste Tag beginnt nicht mit Entscheidungen, sondern mit Ausführung."],
-    ["Keine großen Mahlzeiten kurz vor dem Schlafen", "Idealerweise die letzte größere Mahlzeit etwa 2–3 Stunden vor dem Schlafengehen.", "Kann Verdauungsbeschwerden reduzieren und den Schlafkomfort verbessern."],
-    ["Digitaler Hard Cut", "Idealerweise 60 Minuten vor dem Schlafen keine stimulierenden digitalen Inhalte.", "Hilft dabei, geistig herunterzufahren und die Schlafvorbereitung zu unterstützen."],
-  ]},
+const PHASES = [
+  { id: "morning", title: "🌅 Morgens", short: "Morgens" },
+  { id: "day", title: "☀️ Tagsüber", short: "Tagsüber" },
+  { id: "evening", title: "🌙 Abends", short: "Abends" },
+];
+const DEFAULT_RULES = [
+  ["morning", "Feste Aufstehzeit", "Möglichst jeden Tag zur gleichen Zeit aufstehen und nicht snoozen.", "Ein stabiler Rhythmus erleichtert das Aufstehen und gibt dem Tag einen festen Startpunkt."],
+  ["morning", "Wecker außer Reichweite", "Wecker so platzieren, dass du zum Ausschalten aufstehen musst.", "Verhindert den automatischen „noch 10 Minuten“-Reflex."],
+  ["morning", "Sofort Licht", "Direkt nach dem Aufstehen Tageslicht suchen bzw. Rollläden öffnen und Licht einschalten.", "Helles Morgenlicht unterstützt die innere Uhr und fördert Wachheit."],
+  ["morning", "Wasser trinken", "Direkt nach dem Aufstehen ca. 300–500 ml Wasser trinken.", "Gleicht Flüssigkeitsverlust über Nacht aus und hilft, in den Tag zu kommen."],
+  ["morning", "30 Minuten No-Screen", "Die ersten 30 Minuten kein Social Media, News, YouTube oder andere stimulierende Inhalte.", "Verhindert, dass der Tag direkt mit Ablenkung und passivem Konsum beginnt."],
+  ["morning", "Keine Entscheidungen am Morgen", "Der erste Arbeitsschritt steht bereits am Vorabend fest.", "Du musst morgens nicht überlegen, womit du anfangen sollst."],
+  ["morning", "Must-Win sofort starten", "Nach der Morgenroutine direkt mit der wichtigsten Aufgabe beginnen.", "Nutzt die erste verfügbare Fokusphase für das Wichtigste statt für Kleinigkeiten."],
+  ["day", "Must-Win-Task", "Jeden Tag gibt es eine wichtigste Aufgabe, die unbedingt erledigt werden soll.", "Verhindert, dass eine lange To-do-Liste zu Überforderung und Aufschieben führt."],
+  ["day", "Maximal Top 3", "Neben der Must-Win-Task maximal zwei weitere wichtige Aufgaben festlegen.", "Hält den Tagesplan realistisch und verhindert Überplanung."],
+  ["day", "Time Boxing", "Wichtige Aufgaben mit festen Start- und Endzeiten in den Kalender eintragen.", "Aus „Ich muss das heute machen“ wird ein konkreter Termin."],
+  ["day", "Single-Tasking", "Während eines Fokusblocks nur eine Aufgabe bearbeiten. Smartphone außer Reichweite.", "Reduziert Ablenkung und unnötige Kontextwechsel."],
+  ["day", "5-Minuten-Startregel", "Wenn du eine Aufgabe aufschiebst, verpflichtest du dich nur zu 5 Minuten Startzeit.", "Senkt die psychologische Einstiegshürde."],
+  ["day", "Ablenkungs-Parkplatz", "Alles, was dir während der Arbeit einfällt, sofort notieren und später bearbeiten.", "Du musst den Gedanken nicht verfolgen und verlierst ihn trotzdem nicht."],
+  ["day", "Fester Sporttermin", "Sport möglichst zu einer festen Uhrzeit durchführen.", "Macht Training zu einem festen Bestandteil des Tages und verhindert, dass es immer weiter nach hinten rutscht."],
+  ["evening", "Arbeits- und Digitalabschluss", "Browser-Tabs schließen, Desktop aufräumen und offene Aufgaben notieren.", "Schafft einen klaren Abschluss und reduziert mentale Unordnung."],
+  ["evening", "Tomorrow Setup", "Must-Win-Task, Top 3 und erste Fokusblöcke für den nächsten Tag festlegen.", "Der nächste Tag beginnt nicht mit Entscheidungen, sondern mit Ausführung."],
+  ["evening", "Keine großen Mahlzeiten kurz vor dem Schlafen", "Idealerweise die letzte größere Mahlzeit etwa 2–3 Stunden vor dem Schlafengehen.", "Kann Verdauungsbeschwerden reduzieren und den Schlafkomfort verbessern."],
+  ["evening", "Digitaler Hard Cut", "Idealerweise 60 Minuten vor dem Schlafen keine stimulierenden digitalen Inhalte.", "Hilft dabei, geistig herunterzufahren und die Schlafvorbereitung zu unterstützen."],
 ];
 const PRINCIPLES = [
   "Abends entscheiden → morgens ausführen.",
   "Weniger planen → konsequenter umsetzen.",
   "Nicht auf Motivation warten → feste Regeln befolgen.",
 ];
-const TOTAL = SECTIONS.reduce((n, s) => n + s.rules.length, 0);
-const THRESHOLD = 15;
+// Ein Tag zählt als geschafft ab 15 von 18 Regeln; bei anderer Regelanzahl im selben Verhältnis.
+const WIN_RATIO = 15 / 18;
 const STORE_KEY = "rules.v1";
 const CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const CHEV_SVG = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+const UP_SVG = '<svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
+const DOWN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
+const DEL_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>';
+const PLUS_SVG = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
 const CLOCK_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
-// Regel-ID (0–17) → Abschnitt
-const PHASE_OF = SECTIONS.flatMap(s => s.rules.map(() => s.id));
 
 // ---------- storage ----------
+function defaultRules() {
+  return DEFAULT_RULES.map(([phase, title, text, why], i) => ({ id: "r" + (i + 1), phase, title, text, why }));
+}
+// Ältere Daten speichern Häkchen als Position 0–17; die werden auf die Regel-IDs r1–r18 umgestellt.
+function migrate(s) {
+  if (!s || typeof s.days !== "object" || !s.days) return null;
+  if (!Array.isArray(s.rules)) {
+    s.rules = defaultRules();
+    Object.values(s.days).forEach(d => {
+      if (d && Array.isArray(d.checks)) d.checks = d.checks.map(c => typeof c === "number" ? "r" + (c + 1) : c);
+    });
+  }
+  return s;
+}
 let state = load();
 function load() {
   try {
-    const s = JSON.parse(localStorage.getItem(STORE_KEY));
-    if (s && s.days) return s;
+    const s = migrate(JSON.parse(localStorage.getItem(STORE_KEY)));
+    if (s) return s;
   } catch (e) {}
-  return { days: {} };
+  return { rules: defaultRules(), days: {} };
 }
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {}
@@ -355,91 +435,113 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
 let todayKey = keyOf(new Date());
 
-// ---------- render: today ----------
+// ---------- helpers ----------
 const $ = id => document.getElementById(id);
-const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-let planTab = "today";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const total = () => state.rules.length;
+const winAt = n => Math.max(1, Math.ceil(n * WIN_RATIO - 1e-9));
+const rulesIn = phase => state.rules.filter(r => r.phase === phase);
+// Reihenfolge im Speicher = Reihenfolge der Abschnitte, damit Segmentleiste und Liste übereinstimmen.
+const ordered = () => PHASES.flatMap(p => rulesIn(p.id));
+let editing = false;
+const openWhy = new Set();
 
-function message(n) {
+function message(n, t) {
   if (n === 0) return "Der Tag beginnt mit der ersten Regel.";
-  if (n < 6) return "Guter Start. Weiter mit der nächsten Regel.";
-  if (n < 12) return "Du bist im Rhythmus.";
-  if (n < TOTAL) return "Fast geschafft.";
-  return "Alle Regeln erledigt.";
+  if (n >= t) return "Alle Regeln erledigt.";
+  if (n < t / 3) return "Guter Start. Weiter mit der nächsten Regel.";
+  if (n < t * 2 / 3) return "Du bist im Rhythmus.";
+  return "Fast geschafft.";
 }
 
+// ---------- render: today ----------
 function renderToday() {
   todayKey = keyOf(new Date());
   $("date").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
-
-  $("bar").innerHTML = PHASE_OF.map(p => `<i class="${p}"></i>`).join("");
-
-  let n = 0;
-  $("phases").innerHTML = SECTIONS.map(sec => {
-    const rows = sec.rules.map(([title, what, why]) => {
-      const id = n++;
-      return `<div class="rule" data-rule="${id}">
-        <button class="check" type="button" role="checkbox" aria-checked="false" aria-label="${esc(title)}">${CHECK_SVG}</button>
-        <div class="body"><div class="title">${esc(title)}</div><div class="text">${esc(what)}</div><div class="why">${esc(why)}</div></div>
-        <button class="why-btn" type="button" aria-label="Begründung anzeigen" aria-expanded="false">${CHEV_SVG}</button>
-      </div>`;
-    }).join("");
-    return `<section class="phase ${sec.id}"><div class="phase-head"><h2>${sec.title}</h2><span class="n"></span></div>${rows}</section>`;
-  }).join("");
-
   $("principles").innerHTML = PRINCIPLES.map(p => `<li>${esc(p)}</li>`).join("");
+  renderRules();
+  renderPlan($("today-plan"), todayKey, true);
+  renderPlan($("tomorrow-plan"), keyOf(addDays(parseKey(todayKey), 1)), false);
+}
 
-  renderPlan();
+function renderRules() {
+  state.rules = ordered();
+  const list = state.rules;
+  $("bar").style.gridTemplateColumns = `repeat(${Math.max(list.length, 1)}, 1fr)`;
+  $("bar").innerHTML = list.map(r => `<i class="${r.phase}" data-seg="${r.id}"></i>`).join("");
+  $("edit-toggle").textContent = editing ? "Fertig" : "Bearbeiten";
+  $("edit-toggle").classList.toggle("strong", editing);
+  $("edit-hint").hidden = !editing;
+
+  const first = list[0] && list[0].id, last = list.length && list[list.length - 1].id;
+  $("phases").innerHTML = PHASES.map(ph => {
+    const rules = rulesIn(ph.id);
+    if (!rules.length && !editing) return "";
+    const rows = rules.map(r => editing
+      ? `<div class="rule editing" data-rule="${r.id}">
+          <button class="icon-btn del-btn" type="button" data-act="delete" aria-label="${esc(r.title)} entfernen">${DEL_SVG}</button>
+          <div class="body" data-act="edit"><div class="title">${esc(r.title)}</div>${r.text ? `<div class="text">${esc(r.text)}</div>` : ""}</div>
+          <div class="moves">
+            <button class="icon-btn" type="button" data-act="up" aria-label="Nach oben" ${r.id === first ? "disabled" : ""}>${UP_SVG}</button>
+            <button class="icon-btn" type="button" data-act="down" aria-label="Nach unten" ${r.id === last ? "disabled" : ""}>${DOWN_SVG}</button>
+          </div>
+        </div>`
+      : `<div class="rule${openWhy.has(r.id) ? " open" : ""}" data-rule="${r.id}">
+          <button class="check" type="button" role="checkbox" aria-checked="false" aria-label="${esc(r.title)}">${CHECK_SVG}</button>
+          <div class="body"><div class="title">${esc(r.title)}</div>${r.text ? `<div class="text">${esc(r.text)}</div>` : ""}${r.why ? `<div class="why">${esc(r.why)}</div>` : ""}</div>
+          ${r.why ? `<button class="icon-btn why-btn" type="button" aria-label="Begründung anzeigen" aria-expanded="${openWhy.has(r.id)}">${CHEV_SVG}</button>` : ""}
+        </div>`
+    ).join("");
+    const empty = !rules.length ? '<p class="empty-phase">Keine Regeln in diesem Abschnitt.</p>' : "";
+    const add = editing ? `<button class="add" type="button" data-add="${ph.id}">${PLUS_SVG}Regel hinzufügen</button>` : "";
+    return `<section class="phase ${ph.id}" data-phase="${ph.id}"><div class="phase-head"><h2>${ph.title}</h2><span class="n"></span></div>${rows}${empty}${add}</section>`;
+  }).join("");
   updateChecks();
 }
 
-function planKey() {
-  return planTab === "today" ? todayKey : keyOf(addDays(parseKey(todayKey), 1));
+function renderPlan(el, key, isToday) {
+  const plan = day(key).plan;
+  const items = [["Must-Win", plan.mustWin, "Wichtigste Aufgabe"], ["Top 2", plan.top[0], "Zweite Aufgabe"], ["Top 3", plan.top[1], "Dritte Aufgabe"]];
+  let html = items.map(([tag, item, ph], i) => isToday
+    ? `<div class="task${i === 0 ? " must" : ""}${item.done ? " done" : ""}" data-i="${i}">
+         <button class="check" type="button" role="checkbox" aria-checked="${item.done}" aria-label="${tag} erledigt">${CHECK_SVG}</button>
+         <input type="text" value="${esc(item.text)}" placeholder="${ph}" aria-label="${tag}" maxlength="120" autocomplete="off" enterkeyhint="done">
+         ${i === 0 ? '<span class="tag">Must-Win</span>' : ""}
+       </div>`
+    : `<div class="field${i === 0 ? " must" : ""}" data-i="${i}"><label for="tm-${i}">${tag}</label><input type="text" id="tm-${i}" value="${esc(item.text)}" placeholder="${ph}" maxlength="120" autocomplete="off" enterkeyhint="done"></div>`
+  ).join("");
+  if (isToday) {
+    if (plan.focus) html += `<div class="task"><span class="icon" title="Erster Fokusblock">${CLOCK_SVG}</span><input type="text" data-focus value="${esc(plan.focus)}" placeholder="Erster Fokusblock" aria-label="Erster Fokusblock" maxlength="60" autocomplete="off" enterkeyhint="done"></div>`;
+  } else {
+    html += `<div class="field"><label for="tm-focus">Fokusblock</label><input type="text" id="tm-focus" data-focus value="${esc(plan.focus)}" placeholder="z. B. 08:00–10:00" maxlength="60" autocomplete="off" enterkeyhint="done"></div>`;
+  }
+  el.innerHTML = html;
+  el.dataset.key = key;
+  if (isToday) $("today-hint").hidden = !!plan.mustWin.text.trim();
 }
-function planItem(plan, i) { return i === 0 ? plan.mustWin : plan.top[i - 1]; }
 
-function renderPlan() {
-  const plan = day(planKey()).plan;
-  document.querySelectorAll("#plan [data-tab]").forEach(b => {
-    const on = b.dataset.tab === planTab;
-    b.classList.toggle("on", on);
-    b.setAttribute("aria-pressed", on);
-  });
-  $("plan-hint").textContent = planTab === "today"
-    ? "Die wichtigste Aufgabe zuerst, dazu maximal zwei weitere."
-    : "Abends festlegen, morgens direkt starten.";
-  const labels = ["Must-Win-Task", "Wichtig 2", "Wichtig 3"];
-  $("tasks").innerHTML = labels.map((label, i) => {
-    const item = planItem(plan, i);
-    return `<div class="task${i === 0 ? " must" : ""}${item.done ? " done" : ""}" data-i="${i}">
-      <button class="check" type="button" role="checkbox" aria-checked="${item.done}" aria-label="${label} erledigt">${CHECK_SVG}</button>
-      <input type="text" value="${esc(item.text)}" maxlength="120" placeholder="${label}" aria-label="${label}" autocomplete="off" enterkeyhint="done">
-    </div>`;
-  }).join("") + `<div class="task">
-      <label for="focus-input" title="Erster Fokusblock">${CLOCK_SVG}</label>
-      <input type="text" id="focus-input" data-focus value="${esc(plan.focus)}" maxlength="60" placeholder="Erster Fokusblock, z. B. 08:00–10:00" aria-label="Erster Fokusblock" autocomplete="off" enterkeyhint="done">
-    </div>`;
-}
+function planItem(plan, i) { return i === 0 ? plan.mustWin : plan.top[i - 1]; }
 
 function updateChecks() {
   const checks = new Set(day(todayKey).checks);
-  document.querySelectorAll("[data-rule]").forEach(r => {
-    const on = checks.has(+r.dataset.rule);
-    r.classList.toggle("done", on);
-    r.querySelector(".check").setAttribute("aria-checked", on);
+  const t = total();
+  let done = 0;
+  state.rules.forEach(r => { if (checks.has(r.id)) done++; });
+  document.querySelectorAll("#phases .rule:not(.editing)").forEach(row => {
+    const on = checks.has(row.dataset.rule);
+    row.classList.toggle("done", on);
+    row.querySelector(".check").setAttribute("aria-checked", on);
   });
-  document.querySelectorAll("#bar i").forEach((seg, i) => seg.classList.toggle("on", checks.has(i)));
-  let start = 0;
-  document.querySelectorAll(".phase").forEach((ph, i) => {
-    const len = SECTIONS[i].rules.length;
-    let done = 0;
-    for (let k = start; k < start + len; k++) if (checks.has(k)) done++;
-    ph.querySelector(".n").textContent = `${done}/${len}`;
-    ph.classList.toggle("complete", done === len);
-    start += len;
+  document.querySelectorAll("#bar i").forEach(seg => seg.classList.toggle("on", checks.has(seg.dataset.seg)));
+  document.querySelectorAll(".phase").forEach(ph => {
+    const rules = rulesIn(ph.dataset.phase);
+    const n = rules.filter(r => checks.has(r.id)).length;
+    ph.querySelector(".n").textContent = `${n}/${rules.length}`;
+    ph.classList.toggle("complete", rules.length > 0 && n === rules.length);
   });
-  $("big").textContent = checks.size;
-  $("msg").textContent = message(checks.size);
+  $("big").textContent = done;
+  $("of").textContent = `von ${t}`;
+  $("msg").textContent = t ? message(done, t) : "Füge über „Bearbeiten“ Regeln hinzu.";
   renderWeek();
 }
 
@@ -451,50 +553,154 @@ function renderWeek() {
     week.innerHTML = '<div class="d"><div class="col"><b></b></div><span class="wd"></span><span class="num"></span></div>'.repeat(7);
   }
   [...week.children].forEach((el, idx) => {
-    const dt = addDays(today, idx - 6);
-    const n = scoreOf(keyOf(dt));
+    const k = keyOf(addDays(today, idx - 6));
     el.classList.toggle("today", idx === 6);
-    el.querySelector("b").style.height = Math.round(n / TOTAL * 100) + "%";
-    el.querySelector(".wd").textContent = names[dt.getDay()];
-    el.querySelector(".num").textContent = n;
+    el.querySelector("b").style.height = Math.round(ratioOf(k) * 100) + "%";
+    el.querySelector(".wd").textContent = names[addDays(today, idx - 6).getDay()];
+    el.querySelector(".num").textContent = scoreOf(k);
   });
 }
 
-// ---------- events: today ----------
+// ---------- events: rules ----------
 $("phases").addEventListener("click", e => {
+  const add = e.target.closest("[data-add]");
+  if (add) { openEditor(null, add.dataset.add); return; }
   const row = e.target.closest("[data-rule]");
   if (!row) return;
+  const id = row.dataset.rule;
+
+  if (editing) {
+    const act = e.target.closest("[data-act]");
+    if (!act) return;
+    if (act.dataset.act === "edit") openEditor(state.rules.find(r => r.id === id));
+    else if (act.dataset.act === "delete") deleteRule(id);
+    else moveRule(id, act.dataset.act === "up" ? -1 : 1);
+    return;
+  }
+
   if (e.target.closest(".why-btn")) {
     const open = row.classList.toggle("open");
+    if (open) openWhy.add(id); else openWhy.delete(id);
     row.querySelector(".why-btn").setAttribute("aria-expanded", open);
     return;
   }
   if (!e.target.closest(".check, .body")) return;
-  const id = +row.dataset.rule, d = day(todayKey);
+  const d = day(todayKey);
   d.checks = d.checks.includes(id) ? d.checks.filter(x => x !== id) : [...d.checks, id];
+  d.total = total();
   save();
   updateChecks();
 });
 
-$("plan").addEventListener("input", e => {
-  const plan = day(planKey()).plan;
-  if (e.target.dataset.focus !== undefined) plan.focus = e.target.value;
-  else planItem(plan, +e.target.closest("[data-i]").dataset.i).text = e.target.value;
-  save();
+$("edit-toggle").addEventListener("click", () => {
+  editing = !editing;
+  renderRules();
 });
-$("plan").addEventListener("click", e => {
-  const tab = e.target.closest("[data-tab]");
-  if (tab) { planTab = tab.dataset.tab; renderPlan(); return; }
-  const btn = e.target.closest(".check");
-  if (!btn) return;
-  const row = btn.closest("[data-i]");
-  const item = planItem(day(planKey()).plan, +row.dataset.i);
-  item.done = !item.done;
-  row.classList.toggle("done", item.done);
-  btn.setAttribute("aria-checked", item.done);
+
+// Pfeil hoch/runter verschiebt innerhalb des Abschnitts; am Rand wandert die Regel in den Nachbarabschnitt.
+function moveRule(id, dir) {
+  const groups = PHASES.map(p => rulesIn(p.id));
+  const gi = groups.findIndex(g => g.some(r => r.id === id));
+  const g = groups[gi], i = g.findIndex(r => r.id === id), rule = g[i];
+  const j = i + dir;
+  if (j >= 0 && j < g.length) {
+    [g[i], g[j]] = [g[j], g[i]];
+  } else {
+    const target = gi + dir;
+    if (target < 0 || target >= groups.length) return;
+    g.splice(i, 1);
+    rule.phase = PHASES[target].id;
+    if (dir < 0) groups[target].push(rule); else groups[target].unshift(rule);
+  }
+  state.rules = groups.flat();
   save();
+  renderRules();
+  const btn = document.querySelector(`[data-rule="${id}"] [data-act="${dir < 0 ? "up" : "down"}"]`);
+  if (btn && !btn.disabled) btn.focus({ preventScroll: true });
+}
+
+function deleteRule(id) {
+  const rule = state.rules.find(r => r.id === id);
+  if (!rule || !confirm(`„${rule.title}“ entfernen?`)) return;
+  state.rules = state.rules.filter(r => r.id !== id);
+  const d = day(todayKey);
+  d.checks = d.checks.filter(x => x !== id);
+  d.total = total();
+  openWhy.delete(id);
+  save();
+  renderRules();
+}
+
+// ---------- Regel-Editor ----------
+let editorRule = null, editorPhase = "morning";
+function openEditor(rule, phase) {
+  editorRule = rule;
+  editorPhase = rule ? rule.phase : phase;
+  const f = $("editor-form");
+  $("editor-title").textContent = rule ? "Regel bearbeiten" : "Neue Regel";
+  f.elements.rtitle.value = rule ? rule.title : "";
+  f.elements.rtext.value = rule ? rule.text : "";
+  f.elements.rwhy.value = rule ? rule.why : "";
+  renderEditorPhase();
+  $("editor").showModal();
+  if (!rule) f.elements.rtitle.focus();
+}
+function renderEditorPhase() {
+  $("editor-phase").innerHTML = PHASES.map(p =>
+    `<button type="button" data-phase="${p.id}" class="${p.id === editorPhase ? "on" : ""}" aria-pressed="${p.id === editorPhase}">${p.short}</button>`
+  ).join("");
+}
+$("editor-phase").addEventListener("click", e => {
+  const b = e.target.closest("[data-phase]");
+  if (b) { editorPhase = b.dataset.phase; renderEditorPhase(); }
 });
-$("plan").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur(); });
+$("editor-cancel").addEventListener("click", () => $("editor").close());
+$("editor").addEventListener("click", e => { if (e.target === $("editor")) $("editor").close(); });
+$("editor-form").addEventListener("submit", e => {
+  const f = e.target;
+  const data = { title: f.elements.rtitle.value.trim(), text: f.elements.rtext.value.trim(), why: f.elements.rwhy.value.trim() };
+  if (!data.title) { e.preventDefault(); f.elements.rtitle.focus(); return; }
+  if (editorRule) {
+    const moved = editorRule.phase !== editorPhase;
+    Object.assign(editorRule, data);
+    if (moved) {
+      state.rules = state.rules.filter(r => r !== editorRule);
+      editorRule.phase = editorPhase;
+      state.rules.push(editorRule);
+    }
+  } else {
+    state.rules.push({ id: "r" + Date.now().toString(36), phase: editorPhase, ...data });
+    day(todayKey).total = total();
+  }
+  save();
+  renderRules();
+});
+
+// ---------- events: Heute / Tomorrow Setup ----------
+function bindPlan(el) {
+  el.addEventListener("input", e => {
+    const plan = day(el.dataset.key).plan;
+    if (e.target.dataset.focus !== undefined) plan.focus = e.target.value;
+    else planItem(plan, +e.target.closest("[data-i]").dataset.i).text = e.target.value;
+    save();
+  });
+  el.addEventListener("click", e => {
+    const btn = e.target.closest(".check");
+    if (!btn) return;
+    const row = btn.closest("[data-i]");
+    const item = planItem(day(el.dataset.key).plan, +row.dataset.i);
+    item.done = !item.done;
+    row.classList.toggle("done", item.done);
+    btn.setAttribute("aria-checked", item.done);
+    save();
+  });
+  el.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur(); });
+}
+bindPlan($("today-plan"));
+bindPlan($("tomorrow-plan"));
+$("today-plan").addEventListener("input", () => {
+  $("today-hint").hidden = !!day(todayKey).plan.mustWin.text.trim();
+});
 
 $("reset").addEventListener("click", () => {
   if (!day(todayKey).checks.length) return;
@@ -506,7 +712,10 @@ $("reset").addEventListener("click", () => {
 
 // ---------- history ----------
 function scoreOf(key) { const d = state.days[key]; return d && d.checks ? d.checks.length : 0; }
-function isWin(key) { return scoreOf(key) >= THRESHOLD; }
+// Vergangene Tage werden an der Regelanzahl gemessen, die an dem Tag galt.
+function totalOf(key) { const d = state.days[key]; return (d && d.total) || total() || 1; }
+function ratioOf(key) { return Math.min(1, scoreOf(key) / totalOf(key)); }
+function isWin(key) { return scoreOf(key) > 0 && scoreOf(key) >= winAt(totalOf(key)); }
 
 function renderHistory() {
   const today = parseKey(todayKey);
@@ -523,15 +732,15 @@ function renderHistory() {
   }
 
   let sum = 0;
-  for (let i = 0; i < 7; i++) sum += scoreOf(keyOf(addDays(today, -i)));
-  const avg = Math.round(sum / 7 / TOTAL * 100);
+  for (let i = 0; i < 7; i++) sum += ratioOf(keyOf(addDays(today, -i)));
+  const avg = Math.round(sum / 7 * 100);
 
   $("stats").innerHTML = [
     [streak, streak === 1 ? "Tag in Folge" : "Tage in Folge"],
     [best, "Bestwert"],
     [avg + " %", "Schnitt 7 Tage"],
   ].map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
-  $("threshold").textContent = THRESHOLD;
+  $("threshold-note").textContent = `Ein Tag zählt als geschafft ab ${winAt(total())} von ${total()} Regeln.`;
 
   const first = new Date(today.getFullYear(), today.getMonth(), 1);
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
@@ -540,23 +749,21 @@ function renderHistory() {
   cells += '<div class="cell empty"></div>'.repeat((first.getDay() + 6) % 7);
   for (let i = 1; i <= daysInMonth; i++) {
     const k = keyOf(new Date(today.getFullYear(), today.getMonth(), i));
-    const s = scoreOf(k);
-    const lvl = s === 0 ? "" : s >= THRESHOLD ? "l3" : s >= TOTAL / 2 ? "l2" : "l1";
+    const lvl = scoreOf(k) === 0 ? "" : isWin(k) ? "l3" : ratioOf(k) >= .5 ? "l2" : "l1";
     cells += `<div class="cell ${lvl}${k === todayKey ? " today" : ""}">${i}</div>`;
   }
   $("cal").innerHTML = `<div class="cal-grid">${cells}</div>
     <div class="legend">weniger <span class="cell"></span><span class="cell l1"></span><span class="cell l2"></span><span class="cell l3"></span> mehr</div>`;
 
-  const counts = new Array(TOTAL).fill(0);
+  const counts = {};
   for (let i = 0; i < 30; i++) {
     const d = state.days[keyOf(addDays(today, -i))];
-    if (d && d.checks) d.checks.forEach(id => counts[id]++);
+    if (d && d.checks) d.checks.forEach(id => { counts[id] = (counts[id] || 0) + 1; });
   }
-  const names = SECTIONS.flatMap(s => s.rules.map(r => r[0]));
-  $("rule-stats").innerHTML = names.map((name, i) => {
-    const pct = Math.round(counts[i] / 30 * 100);
-    return `<div class="stat-row ${PHASE_OF[i]}"><span class="name">${esc(name)}</span><span class="track"><i style="width:${pct}%"></i></span><span class="pct">${pct} %</span></div>`;
-  }).join("");
+  $("rule-stats").innerHTML = state.rules.map(r => {
+    const pct = Math.round((counts[r.id] || 0) / 30 * 100);
+    return `<div class="stat-row ${r.phase}"><span class="name">${esc(r.title)}</span><span class="track"><i style="width:${pct}%"></i></span><span class="pct">${pct} %</span></div>`;
+  }).join("") || '<p class="hint">Noch keine Regeln.</p>';
 }
 
 function showView(name) {
@@ -589,8 +796,8 @@ $("import-file").addEventListener("change", async e => {
   e.target.value = "";
   if (!f) return;
   try {
-    const data = JSON.parse(await f.text());
-    if (!data || typeof data.days !== "object") throw new Error();
+    const data = migrate(JSON.parse(await f.text()));
+    if (!data) throw new Error();
     if (!confirm("Backup importieren? Die aktuellen Daten werden ersetzt.")) return;
     state = data;
     save();
@@ -605,7 +812,7 @@ $("import-file").addEventListener("change", async e => {
 // ---------- lifecycle ----------
 function refreshIfNewDay() {
   if (keyOf(new Date()) === todayKey) return;
-  planTab = "today";
+  openWhy.clear();
   renderToday();
   if (!$("view-history").hidden) renderHistory();
 }
@@ -613,6 +820,7 @@ document.addEventListener("visibilitychange", () => { if (!document.hidden) refr
 window.addEventListener("focus", refreshIfNewDay);
 setInterval(refreshIfNewDay, 60000);
 
+save();
 renderToday();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>

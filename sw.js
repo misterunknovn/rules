@@ -1,5 +1,5 @@
 // Network first, cache as fallback: updates arrive immediately, the app still opens offline.
-const CACHE = "rules-v2";
+const CACHE = "rules-v3";
 const FILES = ["./", "index.html", "manifest.json", "icons/icon-180.png", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
