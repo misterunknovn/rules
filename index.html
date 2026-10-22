@@ -260,7 +260,7 @@
   dialog::backdrop { background: rgba(0, 0, 0, .45); }
   dialog form { padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); }
   .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .sheet-head h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .sheet-head h2 { margin: 0; font-size: 16px; font-weight: 700; outline: none; }
   .sheet-field { display: block; margin-bottom: 12px; }
   .sheet-field span { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
   .sheet-field input, .sheet-field textarea {
@@ -363,7 +363,7 @@
 <dialog id="editor">
   <form method="dialog" id="editor-form">
     <div class="sheet-head">
-      <h2 id="editor-title">Regel bearbeiten</h2>
+      <h2 id="editor-title" tabindex="-1" autofocus>Regel bearbeiten</h2>
     </div>
     <label class="sheet-field"><span>Titel</span><input name="rtitle" required maxlength="80" autocomplete="off"></label>
     <label class="sheet-field"><span>Beschreibung</span><textarea name="rtext" rows="2" maxlength="300"></textarea></label>
@@ -792,7 +792,6 @@ function openEditor(rule, phase) {
   f.elements.rwhy.value = rule ? rule.why : "";
   renderEditorPhase();
   $("editor").showModal();
-  if (!rule) f.elements.rtitle.focus();
 }
 function renderEditorPhase() {
   $("editor-phase").innerHTML = PHASES.map(p =>
