@@ -84,7 +84,7 @@
 
   /* Kopf */
   .date { font-size: 14px; color: var(--ink-soft); margin: 4px 0 2px; }
-  .title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+  .title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
   h1 { font-size: 30px; line-height: 1.1; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
   .count { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px; }
   .count .big { font-size: 46px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
@@ -148,10 +148,15 @@
   .phase.day .n { color: var(--day); }
   .phase.evening .n { color: var(--evening); }
   .phase.complete .phase-head .n::after { content: " ✓"; }
-  .empty-phase { margin: 4px 4px 0; font-size: 13px; color: var(--ink-soft); }
+  .rules:empty::after { content: "Keine Regeln in diesem Abschnitt."; display: block; padding: 6px 4px; font-size: 13px; color: var(--ink-soft); }
 
-  .rule { display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px 10px 4px; border-bottom: 1px solid var(--line); }
-  .rule:last-child { border-bottom: 0; }
+  .rule-wrap {
+    position: relative; overflow: hidden; border-bottom: 1px solid var(--line);
+    touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+  }
+  .rules .rule-wrap:last-child { border-bottom: 0; }
+  .rule { position: relative; z-index: 1; display: flex; align-items: flex-start; gap: 12px; padding: 10px 4px; background: var(--bg); transition: transform .2s; }
+  .rule.swiping { transition: none; }
   .body { flex: 1; min-width: 0; cursor: pointer; }
   .title { font-weight: 700; font-size: 15px; }
   .text { color: var(--ink-soft); font-size: 14px; margin-top: 1px; }
@@ -159,7 +164,6 @@
   .rule.done .text { opacity: .6; }
   .icon-btn { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: none; border: 0; color: var(--ink-soft); cursor: pointer; border-radius: 8px; padding: 0; }
   .icon-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
-  .icon-btn:disabled { opacity: .3; cursor: default; }
   .rule.open .why-btn svg { transform: rotate(180deg); }
   .why { display: none; margin-top: 8px; padding: 7px 11px; background: var(--surface); border-left: 3px solid var(--line); border-radius: 0 8px 8px 0; font-size: 13px; }
   .rule.open .why { display: block; }
@@ -167,15 +171,35 @@
   .phase.day .why { border-left-color: var(--day); }
   .phase.evening .why { border-left-color: var(--evening); }
 
-  /* Bearbeiten */
-  .edit-hint { margin: -10px 4px 20px; font-size: 13px; color: var(--ink-soft); }
-  .rule.editing { align-items: center; gap: 6px; }
-  .rule.editing .body { padding: 0 6px; }
-  .del-btn { color: var(--danger); }
-  .del-btn svg { width: 22px; height: 22px; stroke-width: 2; }
-  .moves { flex: none; display: flex; }
-  .add { display: flex; align-items: center; gap: 8px; width: 100%; margin-top: 4px; padding: 10px 4px; border: 0; background: none; color: var(--day); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; border-radius: 8px; text-align: left; }
-  .add svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; }
+  /* Wischen: rechts = bearbeiten, links = löschen */
+  .swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 20px; font-size: 14px; font-weight: 700; color: var(--surface); opacity: 0; }
+  .swipe-bg.edit, .swipe-bg.del { opacity: 1; }
+  .swipe-bg.edit { justify-content: flex-start; background: color-mix(in srgb, var(--day) 45%, var(--bg)); }
+  .swipe-bg.del { justify-content: flex-end; background: color-mix(in srgb, var(--danger) 45%, var(--bg)); }
+  .swipe-bg.edit.armed { background: var(--day); }
+  .swipe-bg.del.armed { background: var(--danger); }
+  .swipe-bg span { transition: transform .15s; }
+  .swipe-bg.armed span { transform: scale(1.12); }
+
+  /* Ziehen zum Verschieben */
+  .rule-wrap.dragging { position: fixed; z-index: 50; margin: 0; border-bottom: 0; border-radius: 12px; box-shadow: 0 10px 28px rgba(0, 0, 0, .2); }
+  .rule-wrap.dragging .rule { background: var(--surface); }
+  .placeholder { border-radius: 12px; background: var(--line); opacity: .6; }
+  body.drag-active { -webkit-user-select: none; user-select: none; }
+  .gesture-hint { margin: -12px 4px 24px; font-size: 12px; color: var(--ink-soft); }
+
+  .add-btn { flex: none; width: 34px; height: 34px; padding: 0; border: 0; background: none; color: var(--day); cursor: pointer; border-radius: 50%; display: grid; place-items: center; }
+  .add-btn svg { width: 28px; height: 28px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
+
+  .toast {
+    position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+    max-width: 608px; margin: 0 auto; display: flex; align-items: center; gap: 12px;
+    background: var(--ink); color: var(--bg); border-radius: 12px; padding: 10px 10px 10px 14px; font-size: 14px;
+    transform: translateY(160%); transition: transform .25s;
+  }
+  .toast.show { transform: none; }
+  .toast span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .toast button { flex: none; border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; padding: 6px; cursor: pointer; }
 
   button:focus-visible { outline: 3px solid var(--day); outline-offset: 2px; }
 
@@ -250,6 +274,7 @@
   .sheet-actions { display: flex; gap: 8px; margin-top: 16px; }
   .sheet-actions button { flex: 1; font: inherit; font-size: 15px; font-weight: 700; padding: 11px; border-radius: 10px; cursor: pointer; border: 1px solid var(--line); background: none; color: var(--ink); }
   .sheet-actions .primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .sheet-delete { display: block; width: 100%; margin-top: 8px; padding: 11px; border: 0; background: none; color: var(--danger); font: inherit; font-size: 15px; font-weight: 700; cursor: pointer; border-radius: 10px; }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -262,7 +287,9 @@
     <div class="date" id="date"></div>
     <div class="title-row">
       <h1>Rules</h1>
-      <button class="link" type="button" id="edit-toggle">Bearbeiten</button>
+      <button class="add-btn" type="button" id="add-rule" aria-label="Regel hinzufügen">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 7.5v9M7.5 12h9"/></svg>
+      </button>
     </div>
 
     <div class="count">
@@ -278,8 +305,8 @@
       <div id="today-plan"></div>
     </section>
 
-    <p class="edit-hint" id="edit-hint" hidden>Tippe auf eine Regel, um sie zu ändern. Mit den Pfeilen verschiebst du sie, auch in einen anderen Abschnitt.</p>
     <div id="phases"></div>
+    <p class="gesture-hint">Gedrückt halten zum Verschieben · nach rechts wischen zum Bearbeiten · nach links wischen zum Löschen</p>
 
     <section class="card" id="tomorrow-card">
       <div class="card-head"><h2>Tomorrow Setup</h2></div>
@@ -346,8 +373,10 @@
       <button type="button" id="editor-cancel">Abbrechen</button>
       <button type="submit" class="primary">Sichern</button>
     </div>
+    <button type="button" class="sheet-delete" id="editor-delete">Regel löschen</button>
   </form>
 </dialog>
+<div class="toast" id="toast" role="status"><span id="toast-text"></span><button type="button" id="toast-action">Rückgängig</button></div>
 
 <script>
 const PHASES = [
@@ -385,10 +414,6 @@ const WIN_RATIO = 15 / 18;
 const STORE_KEY = "rules.v1";
 const CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const CHEV_SVG = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
-const UP_SVG = '<svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg>';
-const DOWN_SVG = '<svg viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg>';
-const DEL_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>';
-const PLUS_SVG = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
 const CLOCK_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
 
 // ---------- storage ----------
@@ -443,7 +468,6 @@ const winAt = n => Math.max(1, Math.ceil(n * WIN_RATIO - 1e-9));
 const rulesIn = phase => state.rules.filter(r => r.phase === phase);
 // Reihenfolge im Speicher = Reihenfolge der Abschnitte, damit Segmentleiste und Liste übereinstimmen.
 const ordered = () => PHASES.flatMap(p => rulesIn(p.id));
-let editing = false;
 const openWhy = new Set();
 
 function message(n, t) {
@@ -469,32 +493,17 @@ function renderRules() {
   const list = state.rules;
   $("bar").style.gridTemplateColumns = `repeat(${Math.max(list.length, 1)}, 1fr)`;
   $("bar").innerHTML = list.map(r => `<i class="${r.phase}" data-seg="${r.id}"></i>`).join("");
-  $("edit-toggle").textContent = editing ? "Fertig" : "Bearbeiten";
-  $("edit-toggle").classList.toggle("strong", editing);
-  $("edit-hint").hidden = !editing;
 
-  const first = list[0] && list[0].id, last = list.length && list[list.length - 1].id;
   $("phases").innerHTML = PHASES.map(ph => {
-    const rules = rulesIn(ph.id);
-    if (!rules.length && !editing) return "";
-    const rows = rules.map(r => editing
-      ? `<div class="rule editing" data-rule="${r.id}">
-          <button class="icon-btn del-btn" type="button" data-act="delete" aria-label="${esc(r.title)} entfernen">${DEL_SVG}</button>
-          <div class="body" data-act="edit"><div class="title">${esc(r.title)}</div>${r.text ? `<div class="text">${esc(r.text)}</div>` : ""}</div>
-          <div class="moves">
-            <button class="icon-btn" type="button" data-act="up" aria-label="Nach oben" ${r.id === first ? "disabled" : ""}>${UP_SVG}</button>
-            <button class="icon-btn" type="button" data-act="down" aria-label="Nach unten" ${r.id === last ? "disabled" : ""}>${DOWN_SVG}</button>
-          </div>
-        </div>`
-      : `<div class="rule${openWhy.has(r.id) ? " open" : ""}" data-rule="${r.id}">
+    const rows = rulesIn(ph.id).map(r => `<div class="rule-wrap" data-rule="${r.id}">
+        <div class="swipe-bg" aria-hidden="true"><span></span></div>
+        <div class="rule${openWhy.has(r.id) ? " open" : ""}">
           <button class="check" type="button" role="checkbox" aria-checked="false" aria-label="${esc(r.title)}">${CHECK_SVG}</button>
           <div class="body"><div class="title">${esc(r.title)}</div>${r.text ? `<div class="text">${esc(r.text)}</div>` : ""}${r.why ? `<div class="why">${esc(r.why)}</div>` : ""}</div>
           ${r.why ? `<button class="icon-btn why-btn" type="button" aria-label="Begründung anzeigen" aria-expanded="${openWhy.has(r.id)}">${CHEV_SVG}</button>` : ""}
-        </div>`
-    ).join("");
-    const empty = !rules.length ? '<p class="empty-phase">Keine Regeln in diesem Abschnitt.</p>' : "";
-    const add = editing ? `<button class="add" type="button" data-add="${ph.id}">${PLUS_SVG}Regel hinzufügen</button>` : "";
-    return `<section class="phase ${ph.id}" data-phase="${ph.id}"><div class="phase-head"><h2>${ph.title}</h2><span class="n"></span></div>${rows}${empty}${add}</section>`;
+        </div>
+      </div>`).join("");
+    return `<section class="phase ${ph.id}" data-phase="${ph.id}"><div class="phase-head"><h2>${ph.title}</h2><span class="n"></span></div><div class="rules">${rows}</div></section>`;
   }).join("");
   updateChecks();
 }
@@ -527,8 +536,8 @@ function updateChecks() {
   const t = total();
   let done = 0;
   state.rules.forEach(r => { if (checks.has(r.id)) done++; });
-  document.querySelectorAll("#phases .rule:not(.editing)").forEach(row => {
-    const on = checks.has(row.dataset.rule);
+  document.querySelectorAll("#phases .rule-wrap").forEach(wrap => {
+    const on = checks.has(wrap.dataset.rule), row = wrap.querySelector(".rule");
     row.classList.toggle("done", on);
     row.querySelector(".check").setAttribute("aria-checked", on);
   });
@@ -541,7 +550,7 @@ function updateChecks() {
   });
   $("big").textContent = done;
   $("of").textContent = `von ${t}`;
-  $("msg").textContent = t ? message(done, t) : "Füge über „Bearbeiten“ Regeln hinzu.";
+  $("msg").textContent = t ? message(done, t) : "Füge über das Plus oben Regeln hinzu.";
   renderWeek();
 }
 
@@ -562,22 +571,15 @@ function renderWeek() {
 }
 
 // ---------- events: rules ----------
+// Nach Ziehen oder Wischen feuert der Browser teils noch einen Klick; der darf die Regel nicht abhaken.
+let suppressClickUntil = 0;
 $("phases").addEventListener("click", e => {
-  const add = e.target.closest("[data-add]");
-  if (add) { openEditor(null, add.dataset.add); return; }
-  const row = e.target.closest("[data-rule]");
-  if (!row) return;
-  const id = row.dataset.rule;
-
-  if (editing) {
-    const act = e.target.closest("[data-act]");
-    if (!act) return;
-    if (act.dataset.act === "edit") openEditor(state.rules.find(r => r.id === id));
-    else if (act.dataset.act === "delete") deleteRule(id);
-    else moveRule(id, act.dataset.act === "up" ? -1 : 1);
-    return;
-  }
-
+  if (Date.now() < suppressClickUntil) { e.stopPropagation(); e.preventDefault(); }
+}, true);
+$("phases").addEventListener("click", e => {
+  const wrap = e.target.closest("[data-rule]");
+  if (!wrap) return;
+  const id = wrap.dataset.rule, row = wrap.querySelector(".rule");
   if (e.target.closest(".why-btn")) {
     const open = row.classList.toggle("open");
     if (open) openWhy.add(id); else openWhy.delete(id);
@@ -591,45 +593,191 @@ $("phases").addEventListener("click", e => {
   save();
   updateChecks();
 });
+$("phases").addEventListener("contextmenu", e => { if (e.target.closest(".rule-wrap")) e.preventDefault(); });
 
-$("edit-toggle").addEventListener("click", () => {
-  editing = !editing;
-  renderRules();
+$("add-rule").addEventListener("click", () => {
+  const h = new Date().getHours();
+  openEditor(null, h < 11 ? "morning" : h < 18 ? "day" : "evening");
 });
 
-// Pfeil hoch/runter verschiebt innerhalb des Abschnitts; am Rand wandert die Regel in den Nachbarabschnitt.
-function moveRule(id, dir) {
-  const groups = PHASES.map(p => rulesIn(p.id));
-  const gi = groups.findIndex(g => g.some(r => r.id === id));
-  const g = groups[gi], i = g.findIndex(r => r.id === id), rule = g[i];
-  const j = i + dir;
-  if (j >= 0 && j < g.length) {
-    [g[i], g[j]] = [g[j], g[i]];
-  } else {
-    const target = gi + dir;
-    if (target < 0 || target >= groups.length) return;
-    g.splice(i, 1);
-    rule.phase = PHASES[target].id;
-    if (dir < 0) groups[target].push(rule); else groups[target].unshift(rule);
+// ---------- Gesten: gedrückt halten = verschieben, wischen = bearbeiten/löschen ----------
+const LONG_PRESS_MS = 450;
+const SWIPE_FULL = 0.6;   // Anteil der Zeilenbreite, ab dem die Aktion ausgelöst wird
+const G = { mode: null };
+
+function gStart(x, y, target) {
+  const wrap = target.closest(".rule-wrap");
+  if (!wrap || G.mode) return;
+  Object.assign(G, { mode: "pending", wrap, x0: x, y0: y, x, y, dx: 0 });
+  G.timer = setTimeout(lift, LONG_PRESS_MS);
+}
+function gMove(x, y, ev) {
+  if (!G.mode) return;
+  G.x = x; G.y = y;
+  const dx = x - G.x0, dy = y - G.y0;
+  if (G.mode === "pending") {
+    if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.3) { clearTimeout(G.timer); startSwipe(); }
+    else if (Math.abs(dx) > 10 || Math.abs(dy) > 10) { clearTimeout(G.timer); G.mode = null; return; }
+    else return;
   }
-  state.rules = groups.flat();
-  save();
-  renderRules();
-  const btn = document.querySelector(`[data-rule="${id}"] [data-act="${dir < 0 ? "up" : "down"}"]`);
-  if (btn && !btn.disabled) btn.focus({ preventScroll: true });
+  if (ev && ev.cancelable) ev.preventDefault();
+  if (G.mode === "swipe") updateSwipe(dx);
+  else if (G.mode === "drag") updateDrag();
+}
+function gEnd(cancel) {
+  clearTimeout(G.timer);
+  if (G.mode === "swipe") endSwipe(cancel);
+  else if (G.mode === "drag") endDrag();
+  G.mode = null;
 }
 
+let lastTouch = 0;
+$("phases").addEventListener("touchstart", e => {
+  lastTouch = Date.now();
+  if (e.touches.length > 1) { gEnd(true); return; }
+  gStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+}, { passive: true });
+$("phases").addEventListener("touchmove", e => gMove(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
+$("phases").addEventListener("touchend", () => gEnd(false));
+$("phases").addEventListener("touchcancel", () => gEnd(true));
+$("phases").addEventListener("mousedown", e => {
+  if (e.button !== 0 || Date.now() - lastTouch < 800) return;
+  gStart(e.clientX, e.clientY, e.target);
+});
+window.addEventListener("mousemove", e => { if (Date.now() - lastTouch > 800) gMove(e.clientX, e.clientY, null); });
+window.addEventListener("mouseup", () => { if (Date.now() - lastTouch > 800) gEnd(false); });
+
+function startSwipe() {
+  G.mode = "swipe";
+  G.inner = G.wrap.querySelector(".rule");
+  G.bg = G.wrap.querySelector(".swipe-bg");
+  G.width = G.wrap.offsetWidth;
+  G.inner.classList.add("swiping");
+}
+function updateSwipe(dx) {
+  G.dx = dx;
+  G.inner.style.transform = `translateX(${dx}px)`;
+  const armed = Math.abs(dx) >= G.width * SWIPE_FULL;
+  G.bg.className = "swipe-bg " + (dx > 0 ? "edit" : "del") + (armed ? " armed" : "");
+  G.bg.firstChild.textContent = dx > 0 ? "Bearbeiten" : "Löschen";
+}
+function endSwipe(cancel) {
+  suppressClickUntil = Date.now() + 400;
+  const { inner, bg, wrap, dx, width } = G;
+  inner.classList.remove("swiping");
+  const reset = () => { inner.style.transform = ""; setTimeout(() => { bg.className = "swipe-bg"; }, 200); };
+  if (cancel || Math.abs(dx) < width * SWIPE_FULL) { reset(); return; }
+  inner.style.transform = `translateX(${dx > 0 ? width : -width}px)`;
+  const id = wrap.dataset.rule;
+  setTimeout(() => {
+    if (dx > 0) { openEditor(state.rules.find(r => r.id === id)); reset(); }
+    else deleteRule(id);
+  }, 180);
+}
+
+function lift() {
+  if (G.mode !== "pending") return;
+  G.mode = "drag";
+  const wrap = G.wrap, r = wrap.getBoundingClientRect();
+  G.ph = document.createElement("div");
+  G.ph.className = "placeholder";
+  G.ph.style.height = r.height + "px";
+  wrap.before(G.ph);
+  wrap.classList.add("dragging");
+  Object.assign(wrap.style, { left: r.left + "px", top: r.top + "px", width: r.width + "px" });
+  document.body.classList.add("drag-active");
+  if (navigator.vibrate) navigator.vibrate(10);
+  G.raf = requestAnimationFrame(autoScroll);
+}
+function updateDrag() {
+  G.wrap.style.transform = `translateY(${G.y - G.y0}px)`;
+  placePlaceholder(G.y);
+}
+// Am oberen/unteren Bildschirmrand weiterscrollen, damit Regeln über die ganze Liste wandern können.
+function autoScroll() {
+  if (G.mode !== "drag") return;
+  const edge = 70, h = window.innerHeight;
+  const v = G.y < edge ? -Math.ceil((edge - G.y) / 5) : G.y > h - edge ? Math.ceil((G.y - h + edge) / 5) : 0;
+  if (v) { window.scrollBy(0, v); placePlaceholder(G.y); }
+  G.raf = requestAnimationFrame(autoScroll);
+}
+// Platzhalter vor die erste Zeile setzen, deren Mitte unter dem Finger liegt.
+// Liegt dort eine Abschnitts-Kopfzeile, kommt er ans Ende des vorherigen Abschnitts.
+function placePlaceholder(y) {
+  const els = document.querySelectorAll("#phases .phase-head, #phases .rule-wrap:not(.dragging)");
+  for (const el of els) {
+    const r = el.getBoundingClientRect();
+    if (y >= r.top + r.height / 2) continue;
+    if (el.classList.contains("rule-wrap")) {
+      if (el.previousElementSibling !== G.ph) el.before(G.ph);
+    } else {
+      const prev = el.closest(".phase").previousElementSibling;
+      const box = (prev || el.closest(".phase")).querySelector(".rules");
+      if (prev) { if (box.lastElementChild !== G.ph) box.append(G.ph); }
+      else if (box.firstElementChild !== G.ph) box.prepend(G.ph);
+    }
+    return;
+  }
+  const boxes = document.querySelectorAll("#phases .rules");
+  const last = boxes[boxes.length - 1];
+  if (last.lastElementChild !== G.ph) last.append(G.ph);
+}
+function endDrag() {
+  cancelAnimationFrame(G.raf);
+  suppressClickUntil = Date.now() + 400;
+  const wrap = G.wrap;
+  G.ph.replaceWith(wrap);
+  wrap.classList.remove("dragging");
+  wrap.removeAttribute("style");
+  document.body.classList.remove("drag-active");
+  const order = [];
+  document.querySelectorAll("#phases .phase").forEach(sec => {
+    sec.querySelectorAll(".rule-wrap").forEach(w => {
+      const rule = state.rules.find(r => r.id === w.dataset.rule);
+      rule.phase = sec.dataset.phase;
+      order.push(rule);
+    });
+  });
+  state.rules = order;
+  save();
+  renderRules();
+}
+
+// ---------- Löschen mit Rückgängig ----------
 function deleteRule(id) {
-  const rule = state.rules.find(r => r.id === id);
-  if (!rule || !confirm(`„${rule.title}“ entfernen?`)) return;
-  state.rules = state.rules.filter(r => r.id !== id);
-  const d = day(todayKey);
-  d.checks = d.checks.filter(x => x !== id);
-  d.total = total();
+  const idx = state.rules.findIndex(r => r.id === id);
+  if (idx < 0) return;
+  const rule = state.rules[idx], key = todayKey;
+  const wasChecked = day(key).checks.includes(id);
+  state.rules.splice(idx, 1);
+  day(key).checks = day(key).checks.filter(x => x !== id);
+  day(key).total = total();
   openWhy.delete(id);
   save();
   renderRules();
+  toast(`„${rule.title}“ gelöscht`, () => {
+    state.rules.splice(Math.min(idx, state.rules.length), 0, rule);
+    if (wasChecked && !day(key).checks.includes(id)) day(key).checks.push(id);
+    day(key).total = total();
+    save();
+    renderRules();
+  });
 }
+
+let toastTimer, toastUndo = null;
+function toast(text, undo) {
+  $("toast-text").textContent = text;
+  toastUndo = undo;
+  $("toast").classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { $("toast").classList.remove("show"); toastUndo = null; }, 5000);
+}
+$("toast-action").addEventListener("click", () => {
+  if (toastUndo) toastUndo();
+  toastUndo = null;
+  clearTimeout(toastTimer);
+  $("toast").classList.remove("show");
+});
 
 // ---------- Regel-Editor ----------
 let editorRule = null, editorPhase = "morning";
@@ -638,6 +786,7 @@ function openEditor(rule, phase) {
   editorPhase = rule ? rule.phase : phase;
   const f = $("editor-form");
   $("editor-title").textContent = rule ? "Regel bearbeiten" : "Neue Regel";
+  $("editor-delete").hidden = !rule;
   f.elements.rtitle.value = rule ? rule.title : "";
   f.elements.rtext.value = rule ? rule.text : "";
   f.elements.rwhy.value = rule ? rule.why : "";
@@ -655,6 +804,10 @@ $("editor-phase").addEventListener("click", e => {
   if (b) { editorPhase = b.dataset.phase; renderEditorPhase(); }
 });
 $("editor-cancel").addEventListener("click", () => $("editor").close());
+$("editor-delete").addEventListener("click", () => {
+  $("editor").close();
+  if (editorRule) deleteRule(editorRule.id);
+});
 $("editor").addEventListener("click", e => { if (e.target === $("editor")) $("editor").close(); });
 $("editor-form").addEventListener("submit", e => {
   const f = e.target;
@@ -811,7 +964,7 @@ $("import-file").addEventListener("change", async e => {
 
 // ---------- lifecycle ----------
 function refreshIfNewDay() {
-  if (keyOf(new Date()) === todayKey) return;
+  if (G.mode || keyOf(new Date()) === todayKey) return;
   openWhy.clear();
   renderToday();
   if (!$("view-history").hidden) renderHistory();
