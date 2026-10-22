@@ -7,217 +7,286 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Rules">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f151c" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <title>Rules</title>
 <style>
   :root {
-    --bg: #F2F2F7;
-    --card: #FFFFFF;
-    --text: #000000;
-    --secondary: #6C6C70;
-    --tertiary: #AEAEB2;
-    --separator: rgba(60, 60, 67, .18);
-    --accent: #5856D6;
-    --green: #34C759;
-    --fill: rgba(120, 120, 128, .12);
-    --bar: rgba(249, 249, 249, .86);
+    color-scheme: light;
+    --bg: #f3f5f7;
+    --surface: #ffffff;
+    --ink: #16202b;
+    --ink-soft: #5a6674;
+    --line: #dde3e9;
+    --morning: #e8960c;
+    --morning-bg: #fdf1d9;
+    --day: #1f7fb8;
+    --day-bg: #dcedf7;
+    --evening: #5b4bb7;
+    --evening-bg: #e6e2f7;
+    --done: #1b8a5a;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #000000;
-      --card: #1C1C1E;
-      --text: #FFFFFF;
-      --secondary: #8E8E93;
-      --tertiary: #48484A;
-      --separator: rgba(84, 84, 88, .55);
-      --accent: #7D7AFF;
-      --green: #30D158;
-      --fill: rgba(120, 120, 128, .24);
-      --bar: rgba(22, 22, 24, .86);
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0f151c;
+      --surface: #18212b;
+      --ink: #eaf0f6;
+      --ink-soft: #9aa7b5;
+      --line: #2a3643;
+      --morning: #f2b24a;
+      --morning-bg: #35280f;
+      --day: #5db4e6;
+      --day-bg: #12303f;
+      --evening: #9d90ee;
+      --evening-bg: #25214a;
+      --done: #4fc98d;
     }
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; background: var(--bg); color: var(--text); }
-  body {
-    font: 17px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    padding: env(safe-area-inset-top) 0 calc(env(safe-area-inset-bottom) + 84px);
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f151c;
+    --surface: #18212b;
+    --ink: #eaf0f6;
+    --ink-soft: #9aa7b5;
+    --line: #2a3643;
+    --morning: #f2b24a;
+    --morning-bg: #35280f;
+    --day: #5db4e6;
+    --day-bg: #12303f;
+    --evening: #9d90ee;
+    --evening-bg: #25214a;
+    --done: #4fc98d;
   }
-  main { max-width: 640px; margin: 0 auto; padding: 0 16px; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 20px 16px 56px; }
   .view[hidden] { display: none; }
 
-  header { display: flex; align-items: flex-end; justify-content: space-between; padding: 20px 4px 14px; }
-  .date { color: var(--secondary); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
-  h1 { margin: 2px 0 0; font-size: 34px; font-weight: 700; letter-spacing: -.02em; }
-  .ring { position: relative; width: 56px; height: 56px; flex: none; }
-  .ring svg { width: 56px; height: 56px; transform: rotate(-90deg); }
-  .ring circle { fill: none; stroke-width: 6; }
-  .ring .track { stroke: var(--fill); }
-  .ring .value { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset .4s ease, stroke .3s; }
-  .ring.done .value { stroke: var(--green); }
-  .ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  /* Kopf */
+  .date { font-size: 15px; color: var(--ink-soft); margin: 4px 0 2px; }
+  h1 { font-size: 34px; line-height: 1.1; margin: 0 0 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .count { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .count .big { font-size: 56px; font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .count .of { font-size: 18px; color: var(--ink-soft); }
+  .count .msg { margin-left: auto; font-size: 14px; color: var(--ink-soft); text-align: right; max-width: 14em; }
 
-  h2 { margin: 26px 16px 7px; font-size: 13px; font-weight: 400; color: var(--secondary); text-transform: uppercase; letter-spacing: .02em; display: flex; justify-content: space-between; }
-  h2 .count { font-variant-numeric: tabular-nums; }
-  .group { background: var(--card); border-radius: 12px; overflow: hidden; }
-  .footnote { margin: 7px 16px 0; font-size: 13px; color: var(--secondary); }
+  /* Segmentleiste */
+  .bar { display: grid; grid-template-columns: repeat(18, 1fr); gap: 3px; margin-bottom: 26px; }
+  .bar i { height: 10px; border-radius: 3px; background: var(--line); transition: background .25s, transform .25s; }
+  .bar i.on.morning { background: var(--morning); }
+  .bar i.on.day { background: var(--day); }
+  .bar i.on.evening { background: var(--evening); }
+  .bar i.on { transform: scaleY(1.35); }
 
-  .row { display: flex; align-items: flex-start; gap: 12px; padding: 11px 16px; position: relative; }
-  .row + .row::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; border-top: .5px solid var(--separator); }
+  /* Checkbox */
   .check {
-    flex: none; width: 24px; height: 24px; margin-top: 0; border-radius: 50%;
-    border: 1.5px solid var(--tertiary); background: none; padding: 0; cursor: pointer;
-    display: grid; place-items: center; transition: background .15s, border-color .15s, transform .1s;
+    flex: none; width: 34px; height: 34px; border-radius: 10px; border: 2px solid var(--ink-soft);
+    background: transparent; cursor: pointer; display: grid; place-items: center; padding: 0; margin-top: 1px;
+    transition: background .15s, border-color .15s, transform .15s;
   }
-  .check:active { transform: scale(.88); }
-  .check svg { width: 14px; height: 14px; opacity: 0; transition: opacity .15s; }
-  .checked .check { background: var(--accent); border-color: var(--accent); }
-  .checked .check svg { opacity: 1; }
-  .row-body { flex: 1; min-width: 0; cursor: pointer; }
-  .title { display: flex; gap: 8px; align-items: baseline; }
-  .title b { font-weight: 400; }
-  .checked .title b { color: var(--secondary); }
-  .num { color: var(--tertiary); font-size: 13px; font-variant-numeric: tabular-nums; min-width: 1.3em; }
-  .detail { display: none; margin-top: 4px; font-size: 15px; color: var(--secondary); }
-  .detail p { margin: 0 0 4px; }
-  .detail .why { color: var(--text); opacity: .75; }
-  .open .detail { display: block; }
-  .chev { flex: none; width: 8px; margin-top: 5px; color: var(--tertiary); transition: transform .2s; }
-  .open .chev { transform: rotate(90deg); }
+  .check:active { transform: scale(.92); }
+  .check svg { width: 20px; height: 20px; stroke: #fff; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+  .done > .check { background: var(--done); border-color: var(--done); }
+  .done > .check svg { opacity: 1; transform: scale(1); }
 
-  .task { display: flex; align-items: center; gap: 12px; padding: 6px 16px; min-height: 46px; position: relative; }
-  .task + .task::before { content: ""; position: absolute; top: 0; left: 52px; right: 0; border-top: .5px solid var(--separator); }
-  .task .check { margin: 0; }
-  .task input, .field input {
-    flex: 1; min-width: 0; border: 0; background: none; color: var(--text); font: inherit; padding: 6px 0; outline: none;
-  }
-  .task input::placeholder, .field input::placeholder { color: var(--tertiary); }
-  .task.checked input { color: var(--secondary); text-decoration: line-through; }
-  .tag { flex: none; font-size: 11px; font-weight: 600; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); padding: 3px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em; }
+  /* Fokus-Karte */
+  .plan { background: var(--surface); border-radius: 16px; padding: 14px 14px 8px; margin-bottom: 26px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .card-head h2, .card h2 { margin: 0; font-size: 16px; font-weight: 700; }
+  .tabs { display: flex; gap: 4px; background: var(--bg); padding: 3px; border-radius: 10px; }
+  .tabs button { border: 0; background: none; color: var(--ink-soft); font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
+  .tabs button.on { background: var(--surface); color: var(--ink); font-weight: 700; box-shadow: 0 0 0 1px var(--line); }
+  .hint { margin: 0 0 6px; font-size: 13px; color: var(--ink-soft); }
+  .task { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .task.must { border-left: 3px solid var(--morning); padding-left: 10px; }
+  .task input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 16px; padding: 8px 0; outline: none; }
+  .task input::placeholder { color: var(--ink-soft); }
+  .task input:focus-visible { box-shadow: 0 2px 0 var(--day); }
+  .task.must input { font-weight: 700; font-size: 17px; }
+  .task.done input { text-decoration: line-through; color: var(--ink-soft); }
+  .task label { flex: none; width: 34px; display: grid; place-items: center; color: var(--ink-soft); }
+  .task label svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; }
 
-  .field { display: flex; align-items: center; gap: 12px; padding: 6px 16px; min-height: 46px; position: relative; }
-  .field + .field::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
-  .field label { flex: none; width: 92px; color: var(--secondary); font-size: 15px; }
+  /* Abschnitte */
+  .phase { margin-bottom: 26px; }
+  .phase-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 12px; margin-bottom: 8px; }
+  .phase.morning .phase-head { background: var(--morning-bg); }
+  .phase.day .phase-head { background: var(--day-bg); }
+  .phase.evening .phase-head { background: var(--evening-bg); }
+  .phase-head h2 { margin: 0; font-size: 18px; font-weight: 700; }
+  .phase-head .n { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 15px; }
+  .phase.morning .n { color: var(--morning); }
+  .phase.day .n { color: var(--day); }
+  .phase.evening .n { color: var(--evening); }
+  .phase.complete .phase-head .n::after { content: " ✓"; }
 
-  .principle { padding: 12px 16px; display: flex; gap: 12px; position: relative; }
-  .principle + .principle::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
-  .principle .n { color: var(--accent); font-weight: 600; }
+  .rule { display: flex; align-items: flex-start; gap: 12px; padding: 12px 6px 12px 4px; border-bottom: 1px solid var(--line); }
+  .rule:last-child { border-bottom: 0; }
+  .body { flex: 1; min-width: 0; cursor: pointer; }
+  .title { font-weight: 700; font-size: 17px; }
+  .text { color: var(--ink-soft); font-size: 15px; margin-top: 1px; }
+  .rule.done .title { text-decoration: line-through; text-decoration-thickness: 2px; text-decoration-color: var(--ink-soft); color: var(--ink-soft); }
+  .rule.done .text { opacity: .6; }
+  .why-btn { flex: none; width: 34px; height: 34px; display: grid; place-items: center; background: none; border: 0; color: var(--ink-soft); cursor: pointer; border-radius: 8px; padding: 0; }
+  .why-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+  .rule.open .why-btn svg { transform: rotate(180deg); }
+  .why { display: none; margin-top: 8px; padding: 8px 12px; background: var(--surface); border-left: 3px solid var(--line); border-radius: 0 8px 8px 0; font-size: 14px; }
+  .rule.open .why { display: block; }
+  .phase.morning .why { border-left-color: var(--morning); }
+  .phase.day .why { border-left-color: var(--day); }
+  .phase.evening .why { border-left-color: var(--evening); }
 
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .stat { background: var(--card); border-radius: 12px; padding: 12px 14px; }
-  .stat .v { font-size: 28px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-  .stat .l { font-size: 13px; color: var(--secondary); }
+  button:focus-visible { outline: 3px solid var(--day); outline-offset: 2px; }
 
-  .cal { background: var(--card); border-radius: 12px; padding: 14px; }
+  /* Karten */
+  .card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 26px; }
+  .card .card-head { margin-bottom: 12px; }
+  .link { border: 0; background: none; color: var(--day); font: inherit; font-size: 15px; font-weight: 500; padding: 4px 0; cursor: pointer; border-radius: 6px; }
+
+  /* Woche */
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; }
+  .d { text-align: center; font-size: 12px; color: var(--ink-soft); }
+  .d .col { height: 56px; background: var(--line); border-radius: 6px; position: relative; overflow: hidden; margin-bottom: 6px; }
+  .d .col b { position: absolute; left: 0; right: 0; bottom: 0; background: var(--done); border-radius: 6px 6px 0 0; transition: height .3s; }
+  .d.today { color: var(--ink); font-weight: 700; }
+  .d .num { display: block; font-variant-numeric: tabular-nums; font-size: 11px; }
+
+  /* Prinzipien */
+  .principles { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 18px 18px 6px; margin-bottom: 20px; }
+  .principles h2 { margin: 0 0 10px; font-size: 16px; font-weight: 700; }
+  .principles ol { margin: 0; padding: 0; list-style: none; }
+  .principles li { padding: 12px 0; border-top: 1px solid rgba(128,128,128,.35); font-size: 20px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.25; }
+  .principles li:first-child { border-top: 0; }
+
+  .reset { display: block; margin: 0 auto; background: none; border: 1px solid var(--line); color: var(--ink-soft); font: inherit; font-size: 14px; padding: 10px 18px; border-radius: 10px; cursor: pointer; }
+
+  /* Verlauf */
+  .back { display: inline-flex; align-items: center; gap: 2px; margin: 0 0 6px -6px; min-height: 34px; }
+  .back svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+  .stat { background: var(--surface); border-radius: 16px; padding: 14px; }
+  .stat .v { font-size: 28px; font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 13px; color: var(--ink-soft); }
+  .note { margin: 0 0 26px; font-size: 13px; color: var(--ink-soft); }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-  .cal-grid .wd { font-size: 11px; color: var(--secondary); text-align: center; font-weight: 600; }
-  .cell { aspect-ratio: 1; border-radius: 7px; background: var(--fill); display: grid; place-items: center; font-size: 12px; color: var(--secondary); font-variant-numeric: tabular-nums; }
+  .cal-grid .wd { font-size: 12px; color: var(--ink-soft); text-align: center; }
+  .cell { aspect-ratio: 1; border-radius: 8px; background: var(--line); display: grid; place-items: center; font-size: 12px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .cell.empty { background: none; }
-  .cell.l1 { background: color-mix(in srgb, var(--accent) 25%, transparent); color: var(--text); }
-  .cell.l2 { background: color-mix(in srgb, var(--accent) 55%, transparent); color: #fff; }
-  .cell.l3 { background: var(--accent); color: #fff; }
-  .cell.today { outline: 2px solid var(--text); outline-offset: -2px; }
-  .legend { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-top: 10px; font-size: 12px; color: var(--secondary); }
+  .cell.l1 { background: color-mix(in srgb, var(--done) 30%, var(--surface)); color: var(--ink); }
+  .cell.l2 { background: color-mix(in srgb, var(--done) 60%, var(--surface)); color: var(--ink); }
+  .cell.l3 { background: var(--done); color: #fff; }
+  .cell.today { font-weight: 700; box-shadow: inset 0 0 0 2px var(--ink); }
+  .legend { display: flex; gap: 6px; align-items: center; justify-content: flex-end; margin-top: 12px; font-size: 12px; color: var(--ink-soft); }
   .legend .cell { width: 14px; border-radius: 4px; }
+  .stat-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .stat-row:first-of-type { border-top: 0; }
+  .stat-row .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-row .track { flex: none; width: 80px; height: 10px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .stat-row .track i { display: block; height: 100%; border-radius: 3px; }
+  .stat-row.morning .track i { background: var(--morning); }
+  .stat-row.day .track i { background: var(--day); }
+  .stat-row.evening .track i { background: var(--evening); }
+  .stat-row .pct { flex: none; width: 40px; text-align: right; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .actions .reset { margin: 0; color: var(--ink); }
 
-  .bars { display: flex; flex-direction: column; }
-  .bar-row { display: flex; align-items: center; gap: 12px; padding: 9px 16px; position: relative; font-size: 15px; }
-  .bar-row + .bar-row::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
-  .bar-row .name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bar-row .track { flex: none; width: 80px; height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
-  .bar-row .track i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
-  .bar-row .pct { flex: none; width: 38px; text-align: right; color: var(--secondary); font-variant-numeric: tabular-nums; }
-
-  .btn { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--accent); font: inherit; padding: 12px 16px; cursor: pointer; position: relative; }
-  .btn + .btn::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--separator); }
-  .btn.danger { color: #FF3B30; }
-
-  nav {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-    display: flex; justify-content: center; gap: 0;
-    padding: 6px 0 calc(env(safe-area-inset-bottom) + 4px);
-    background: var(--bar); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
-    border-top: .5px solid var(--separator);
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
   }
-  nav button {
-    flex: 1; max-width: 160px; border: 0; background: none; color: var(--secondary); font: 500 10px/1.2 inherit; font-family: inherit;
-    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 2px 0; cursor: pointer;
-  }
-  nav button svg { width: 26px; height: 26px; }
-  nav button[aria-selected="true"] { color: var(--accent); }
-
-  .toast { position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 12px); transform: translate(-50%, -150%); background: var(--card); color: var(--text); padding: 10px 16px; border-radius: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.18); font-size: 15px; font-weight: 600; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); z-index: 20; white-space: nowrap; }
-  .toast.show { transform: translate(-50%, 0); }
 </style>
 </head>
 <body>
-<main>
+<div class="wrap">
   <section class="view" id="view-today">
-    <header>
-      <div>
-        <div class="date" id="date"></div>
-        <h1>Rules</h1>
+    <div class="date" id="date"></div>
+    <h1>Rules</h1>
+
+    <div class="count">
+      <span class="big" id="big">0</span>
+      <span class="of">von 18</span>
+      <span class="msg" id="msg"></span>
+    </div>
+    <div class="bar" id="bar" aria-hidden="true"></div>
+
+    <section class="plan" id="plan">
+      <div class="card-head">
+        <h2>Fokus</h2>
+        <div class="tabs">
+          <button type="button" data-tab="today" class="on" aria-pressed="true">Heute</button>
+          <button type="button" data-tab="tomorrow" aria-pressed="false">Morgen</button>
+        </div>
       </div>
-      <div class="ring" id="ring">
-        <svg viewBox="0 0 56 56"><circle class="track" cx="28" cy="28" r="24"/><circle class="value" cx="28" cy="28" r="24"/></svg>
-        <span id="ring-label"></span>
+      <p class="hint" id="plan-hint"></p>
+      <div id="tasks"></div>
+    </section>
+
+    <div id="phases"></div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Letzte 7 Tage</h2>
+        <button class="link" type="button" id="open-history">Verlauf</button>
       </div>
-    </header>
+      <div class="days" id="week"></div>
+    </section>
 
-    <h2><span>Heute</span></h2>
-    <div class="group" id="today-plan"></div>
-    <p class="footnote" id="today-hint"></p>
+    <section class="principles">
+      <h2>Die drei wichtigsten Prinzipien</h2>
+      <ol id="principles"></ol>
+    </section>
 
-    <div id="sections"></div>
-
-    <h2><span>Tomorrow Setup</span></h2>
-    <div class="group" id="tomorrow-plan"></div>
-    <p class="footnote">Erscheint morgen früh oben unter „Heute“.</p>
-
-    <h2><span>Die drei Prinzipien</span></h2>
-    <div class="group" id="principles"></div>
+    <button class="reset" id="reset" type="button">Heute zurücksetzen</button>
   </section>
 
   <section class="view" id="view-history" hidden>
-    <header><div><div class="date">Rückblick</div><h1>Verlauf</h1></div></header>
+    <button class="link back" type="button" id="close-history">
+      <svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>Heute
+    </button>
+    <h1>Verlauf</h1>
     <div class="stats" id="stats"></div>
-    <p class="footnote">Ein Tag zählt als geschafft ab <span id="threshold"></span> von 18 Regeln.</p>
+    <p class="note">Ein Tag zählt als geschafft ab <span id="threshold"></span> von 18 Regeln.</p>
 
-    <h2><span id="cal-title"></span></h2>
-    <div class="cal" id="cal"></div>
+    <section class="card">
+      <div class="card-head"><h2 id="cal-title"></h2></div>
+      <div id="cal"></div>
+    </section>
 
-    <h2><span>Regeln · letzte 30 Tage</span></h2>
-    <div class="group bars" id="bars"></div>
+    <section class="card">
+      <div class="card-head"><h2>Regeln in den letzten 30 Tagen</h2></div>
+      <div id="rule-stats"></div>
+    </section>
 
-    <h2><span>Daten</span></h2>
-    <div class="group">
-      <button class="btn" id="export">Backup exportieren</button>
-      <button class="btn" id="import">Backup importieren</button>
-    </div>
-    <p class="footnote">Deine Daten liegen nur auf diesem iPhone. Ein Backup sichert sie als Datei, z. B. in iCloud Drive.</p>
+    <section class="card">
+      <div class="card-head"><h2>Daten</h2></div>
+      <p class="hint">Deine Daten liegen nur auf diesem iPhone. Ein Backup sichert sie als Datei, z. B. in iCloud Drive.</p>
+      <div class="actions">
+        <button class="reset" type="button" id="export">Backup exportieren</button>
+        <button class="reset" type="button" id="import">Backup importieren</button>
+      </div>
+    </section>
     <input type="file" id="import-file" accept="application/json,.json" hidden>
   </section>
-</main>
-
-<nav>
-  <button data-view="today" aria-selected="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="M8 12.2l2.7 2.6L16 9.5"/></svg>
-    Heute
-  </button>
-  <button data-view="history" aria-selected="false">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V12M10 20V6M15 20v-9M20 20V9"/></svg>
-    Verlauf
-  </button>
-</nav>
-<div class="toast" id="toast"></div>
+</div>
 
 <script>
 const SECTIONS = [
-  { title: "🌅 Morgens", rules: [
+  { id: "morning", title: "🌅 Morgens", rules: [
     ["Feste Aufstehzeit", "Möglichst jeden Tag zur gleichen Zeit aufstehen und nicht snoozen.", "Ein stabiler Rhythmus erleichtert das Aufstehen und gibt dem Tag einen festen Startpunkt."],
     ["Wecker außer Reichweite", "Wecker so platzieren, dass du zum Ausschalten aufstehen musst.", "Verhindert den automatischen „noch 10 Minuten“-Reflex."],
     ["Sofort Licht", "Direkt nach dem Aufstehen Tageslicht suchen bzw. Rollläden öffnen und Licht einschalten.", "Helles Morgenlicht unterstützt die innere Uhr und fördert Wachheit."],
@@ -226,7 +295,7 @@ const SECTIONS = [
     ["Keine Entscheidungen am Morgen", "Der erste Arbeitsschritt steht bereits am Vorabend fest.", "Du musst morgens nicht überlegen, womit du anfangen sollst."],
     ["Must-Win sofort starten", "Nach der Morgenroutine direkt mit der wichtigsten Aufgabe beginnen.", "Nutzt die erste verfügbare Fokusphase für das Wichtigste statt für Kleinigkeiten."],
   ]},
-  { title: "☀️ Tagsüber", rules: [
+  { id: "day", title: "☀️ Tagsüber", rules: [
     ["Must-Win-Task", "Jeden Tag gibt es eine wichtigste Aufgabe, die unbedingt erledigt werden soll.", "Verhindert, dass eine lange To-do-Liste zu Überforderung und Aufschieben führt."],
     ["Maximal Top 3", "Neben der Must-Win-Task maximal zwei weitere wichtige Aufgaben festlegen.", "Hält den Tagesplan realistisch und verhindert Überplanung."],
     ["Time Boxing", "Wichtige Aufgaben mit festen Start- und Endzeiten in den Kalender eintragen.", "Aus „Ich muss das heute machen“ wird ein konkreter Termin."],
@@ -235,7 +304,7 @@ const SECTIONS = [
     ["Ablenkungs-Parkplatz", "Alles, was dir während der Arbeit einfällt, sofort notieren und später bearbeiten.", "Du musst den Gedanken nicht verfolgen und verlierst ihn trotzdem nicht."],
     ["Fester Sporttermin", "Sport möglichst zu einer festen Uhrzeit durchführen.", "Macht Training zu einem festen Bestandteil des Tages und verhindert, dass es immer weiter nach hinten rutscht."],
   ]},
-  { title: "🌙 Abends", rules: [
+  { id: "evening", title: "🌙 Abends", rules: [
     ["Arbeits- und Digitalabschluss", "Browser-Tabs schließen, Desktop aufräumen und offene Aufgaben notieren.", "Schafft einen klaren Abschluss und reduziert mentale Unordnung."],
     ["Tomorrow Setup", "Must-Win-Task, Top 3 und erste Fokusblöcke für den nächsten Tag festlegen.", "Der nächste Tag beginnt nicht mit Entscheidungen, sondern mit Ausführung."],
     ["Keine großen Mahlzeiten kurz vor dem Schlafen", "Idealerweise die letzte größere Mahlzeit etwa 2–3 Stunden vor dem Schlafengehen.", "Kann Verdauungsbeschwerden reduzieren und den Schlafkomfort verbessern."],
@@ -250,8 +319,11 @@ const PRINCIPLES = [
 const TOTAL = SECTIONS.reduce((n, s) => n + s.rules.length, 0);
 const THRESHOLD = 15;
 const STORE_KEY = "rules.v1";
-const CHECK_SVG = '<svg viewBox="0 0 14 14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.3l2.6 2.5L11 4.4"/></svg>';
-const CHEV_SVG = '<svg class="chev" viewBox="0 0 8 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 1.5L6.5 6.5L1.5 11.5"/></svg>';
+const CHECK_SVG = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const CHEV_SVG = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+const CLOCK_SVG = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+// Regel-ID (0–17) → Abschnitt
+const PHASE_OF = SECTIONS.flatMap(s => s.rules.map(() => s.id));
 
 // ---------- storage ----------
 let state = load();
@@ -286,123 +358,154 @@ let todayKey = keyOf(new Date());
 // ---------- render: today ----------
 const $ = id => document.getElementById(id);
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+let planTab = "today";
+
+function message(n) {
+  if (n === 0) return "Der Tag beginnt mit der ersten Regel.";
+  if (n < 6) return "Guter Start. Weiter mit der nächsten Regel.";
+  if (n < 12) return "Du bist im Rhythmus.";
+  if (n < TOTAL) return "Fast geschafft.";
+  return "Alle Regeln erledigt.";
+}
 
 function renderToday() {
   todayKey = keyOf(new Date());
   $("date").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
 
+  $("bar").innerHTML = PHASE_OF.map(p => `<i class="${p}"></i>`).join("");
+
   let n = 0;
-  $("sections").innerHTML = SECTIONS.map(sec => {
+  $("phases").innerHTML = SECTIONS.map(sec => {
     const rows = sec.rules.map(([title, what, why]) => {
       const id = n++;
-      return `<div class="row" data-rule="${id}">
-        <button class="check" aria-label="${esc(title)} abhaken">${CHECK_SVG}</button>
-        <div class="row-body">
-          <div class="title"><span class="num">${id + 1}</span><b>${esc(title)}</b></div>
-          <div class="detail"><p>${esc(what)}</p><p class="why">→ ${esc(why)}</p></div>
-        </div>
-        ${CHEV_SVG}
+      return `<div class="rule" data-rule="${id}">
+        <button class="check" type="button" role="checkbox" aria-checked="false" aria-label="${esc(title)}">${CHECK_SVG}</button>
+        <div class="body"><div class="title">${esc(title)}</div><div class="text">${esc(what)}</div><div class="why">${esc(why)}</div></div>
+        <button class="why-btn" type="button" aria-label="Begründung anzeigen" aria-expanded="false">${CHEV_SVG}</button>
       </div>`;
     }).join("");
-    return `<h2><span>${sec.title}</span><span class="count" data-count></span></h2><div class="group">${rows}</div>`;
+    return `<section class="phase ${sec.id}"><div class="phase-head"><h2>${sec.title}</h2><span class="n"></span></div>${rows}</section>`;
   }).join("");
 
-  $("principles").innerHTML = PRINCIPLES.map((p, i) => `<div class="principle"><span class="n">${i + 1}</span><span>${esc(p)}</span></div>`).join("");
+  $("principles").innerHTML = PRINCIPLES.map(p => `<li>${esc(p)}</li>`).join("");
 
-  renderPlan($("today-plan"), todayKey, true);
-  renderPlan($("tomorrow-plan"), keyOf(addDays(parseKey(todayKey), 1)), false);
+  renderPlan();
   updateChecks();
 }
 
-function renderPlan(el, key, withChecks) {
-  const plan = day(key).plan;
-  const items = [["Must-Win", plan.mustWin, "Wichtigste Aufgabe"], ["Top 2", plan.top[0], "Zweite Aufgabe"], ["Top 3", plan.top[1], "Dritte Aufgabe"]];
-  let html = items.map(([tag, item, ph], i) => withChecks
-    ? `<div class="task${item.done ? " checked" : ""}" data-i="${i}">
-         <button class="check" aria-label="${tag} erledigt">${CHECK_SVG}</button>
-         <input value="${esc(item.text)}" placeholder="${ph}" enterkeyhint="done">
-         ${i === 0 ? '<span class="tag">Must-Win</span>' : ""}
-       </div>`
-    : `<div class="field" data-i="${i}"><label>${tag}</label><input value="${esc(item.text)}" placeholder="${ph}" enterkeyhint="done"></div>`
-  ).join("");
-  html += withChecks
-    ? (plan.focus ? `<div class="field"><label>Fokusblock</label><input data-focus value="${esc(plan.focus)}" placeholder="z. B. 08:00–10:00"></div>` : "")
-    : `<div class="field"><label>Fokusblock</label><input data-focus value="${esc(plan.focus)}" placeholder="z. B. 08:00–10:00" enterkeyhint="done"></div>`;
-  el.innerHTML = html;
-  el.dataset.key = key;
-
-  if (withChecks) {
-    const filled = plan.mustWin.text.trim();
-    $("today-hint").textContent = filled ? "" : "Noch nichts geplant. Trag es hier ein – oder heute Abend für morgen.";
-    $("today-hint").hidden = !!filled;
-  }
+function planKey() {
+  return planTab === "today" ? todayKey : keyOf(addDays(parseKey(todayKey), 1));
 }
-
 function planItem(plan, i) { return i === 0 ? plan.mustWin : plan.top[i - 1]; }
+
+function renderPlan() {
+  const plan = day(planKey()).plan;
+  document.querySelectorAll("#plan [data-tab]").forEach(b => {
+    const on = b.dataset.tab === planTab;
+    b.classList.toggle("on", on);
+    b.setAttribute("aria-pressed", on);
+  });
+  $("plan-hint").textContent = planTab === "today"
+    ? "Die wichtigste Aufgabe zuerst, dazu maximal zwei weitere."
+    : "Abends festlegen, morgens direkt starten.";
+  const labels = ["Must-Win-Task", "Wichtig 2", "Wichtig 3"];
+  $("tasks").innerHTML = labels.map((label, i) => {
+    const item = planItem(plan, i);
+    return `<div class="task${i === 0 ? " must" : ""}${item.done ? " done" : ""}" data-i="${i}">
+      <button class="check" type="button" role="checkbox" aria-checked="${item.done}" aria-label="${label} erledigt">${CHECK_SVG}</button>
+      <input type="text" value="${esc(item.text)}" maxlength="120" placeholder="${label}" aria-label="${label}" autocomplete="off" enterkeyhint="done">
+    </div>`;
+  }).join("") + `<div class="task">
+      <label for="focus-input" title="Erster Fokusblock">${CLOCK_SVG}</label>
+      <input type="text" id="focus-input" data-focus value="${esc(plan.focus)}" maxlength="60" placeholder="Erster Fokusblock, z. B. 08:00–10:00" aria-label="Erster Fokusblock" autocomplete="off" enterkeyhint="done">
+    </div>`;
+}
 
 function updateChecks() {
   const checks = new Set(day(todayKey).checks);
-  document.querySelectorAll("[data-rule]").forEach(r => r.classList.toggle("checked", checks.has(+r.dataset.rule)));
+  document.querySelectorAll("[data-rule]").forEach(r => {
+    const on = checks.has(+r.dataset.rule);
+    r.classList.toggle("done", on);
+    r.querySelector(".check").setAttribute("aria-checked", on);
+  });
+  document.querySelectorAll("#bar i").forEach((seg, i) => seg.classList.toggle("on", checks.has(i)));
   let start = 0;
-  document.querySelectorAll("[data-count]").forEach((c, i) => {
+  document.querySelectorAll(".phase").forEach((ph, i) => {
     const len = SECTIONS[i].rules.length;
     let done = 0;
     for (let k = start; k < start + len; k++) if (checks.has(k)) done++;
-    c.textContent = `${done}/${len}`;
+    ph.querySelector(".n").textContent = `${done}/${len}`;
+    ph.classList.toggle("complete", done === len);
     start += len;
   });
-  const done = checks.size, r = 24, circ = 2 * Math.PI * r;
-  const v = document.querySelector(".ring .value");
-  v.style.strokeDasharray = circ;
-  v.style.strokeDashoffset = circ * (1 - done / TOTAL);
-  $("ring").classList.toggle("done", done === TOTAL);
-  $("ring-label").textContent = `${done}/${TOTAL}`;
+  $("big").textContent = checks.size;
+  $("msg").textContent = message(checks.size);
+  renderWeek();
+}
+
+function renderWeek() {
+  const names = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  const today = parseKey(todayKey);
+  const week = $("week");
+  if (!week.children.length) {
+    week.innerHTML = '<div class="d"><div class="col"><b></b></div><span class="wd"></span><span class="num"></span></div>'.repeat(7);
+  }
+  [...week.children].forEach((el, idx) => {
+    const dt = addDays(today, idx - 6);
+    const n = scoreOf(keyOf(dt));
+    el.classList.toggle("today", idx === 6);
+    el.querySelector("b").style.height = Math.round(n / TOTAL * 100) + "%";
+    el.querySelector(".wd").textContent = names[dt.getDay()];
+    el.querySelector(".num").textContent = n;
+  });
 }
 
 // ---------- events: today ----------
-$("sections").addEventListener("click", e => {
+$("phases").addEventListener("click", e => {
   const row = e.target.closest("[data-rule]");
   if (!row) return;
-  if (e.target.closest(".check")) {
-    const id = +row.dataset.rule, d = day(todayKey);
-    const had = d.checks.includes(id);
-    d.checks = had ? d.checks.filter(x => x !== id) : [...d.checks, id];
-    save();
-    updateChecks();
-    if (!had && d.checks.length === TOTAL) toast("Alle 18 Regeln geschafft 🎉");
-    else if (!had && d.checks.length === THRESHOLD) toast("Tag geschafft ✓");
-  } else {
-    row.classList.toggle("open");
+  if (e.target.closest(".why-btn")) {
+    const open = row.classList.toggle("open");
+    row.querySelector(".why-btn").setAttribute("aria-expanded", open);
+    return;
   }
+  if (!e.target.closest(".check, .body")) return;
+  const id = +row.dataset.rule, d = day(todayKey);
+  d.checks = d.checks.includes(id) ? d.checks.filter(x => x !== id) : [...d.checks, id];
+  save();
+  updateChecks();
 });
 
-function bindPlan(el) {
-  el.addEventListener("input", e => {
-    const plan = day(el.dataset.key).plan;
-    if (e.target.dataset.focus !== undefined) plan.focus = e.target.value;
-    else planItem(plan, +e.target.closest("[data-i]").dataset.i).text = e.target.value;
-    save();
-  });
-  el.addEventListener("click", e => {
-    const btn = e.target.closest(".check");
-    if (!btn) return;
-    const row = btn.closest("[data-i]");
-    const item = planItem(day(el.dataset.key).plan, +row.dataset.i);
-    item.done = !item.done;
-    row.classList.toggle("checked", item.done);
-    save();
-    if (item.done && row.dataset.i === "0") toast("Must-Win erledigt 💪");
-  });
-  el.addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
-}
-bindPlan($("today-plan"));
-bindPlan($("tomorrow-plan"));
-$("today-plan").addEventListener("input", () => {
-  $("today-hint").hidden = !!day(todayKey).plan.mustWin.text.trim();
+$("plan").addEventListener("input", e => {
+  const plan = day(planKey()).plan;
+  if (e.target.dataset.focus !== undefined) plan.focus = e.target.value;
+  else planItem(plan, +e.target.closest("[data-i]").dataset.i).text = e.target.value;
+  save();
+});
+$("plan").addEventListener("click", e => {
+  const tab = e.target.closest("[data-tab]");
+  if (tab) { planTab = tab.dataset.tab; renderPlan(); return; }
+  const btn = e.target.closest(".check");
+  if (!btn) return;
+  const row = btn.closest("[data-i]");
+  const item = planItem(day(planKey()).plan, +row.dataset.i);
+  item.done = !item.done;
+  row.classList.toggle("done", item.done);
+  btn.setAttribute("aria-checked", item.done);
+  save();
+});
+$("plan").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur(); });
+
+$("reset").addEventListener("click", () => {
+  if (!day(todayKey).checks.length) return;
+  if (!confirm("Alle Häkchen von heute entfernen? Deine Aufgaben bleiben erhalten.")) return;
+  day(todayKey).checks = [];
+  save();
+  updateChecks();
 });
 
 // ---------- history ----------
-function scoreOf(key) { const d = state.days[key]; return d ? d.checks.length : 0; }
+function scoreOf(key) { const d = state.days[key]; return d && d.checks ? d.checks.length : 0; }
 function isWin(key) { return scoreOf(key) >= THRESHOLD; }
 
 function renderHistory() {
@@ -426,7 +529,7 @@ function renderHistory() {
   $("stats").innerHTML = [
     [streak, streak === 1 ? "Tag in Folge" : "Tage in Folge"],
     [best, "Bestwert"],
-    [avg + "%", "Ø 7 Tage"],
+    [avg + " %", "Schnitt 7 Tage"],
   ].map(([v, l]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
   $("threshold").textContent = THRESHOLD;
 
@@ -447,14 +550,23 @@ function renderHistory() {
   const counts = new Array(TOTAL).fill(0);
   for (let i = 0; i < 30; i++) {
     const d = state.days[keyOf(addDays(today, -i))];
-    if (d) d.checks.forEach(id => counts[id]++);
+    if (d && d.checks) d.checks.forEach(id => counts[id]++);
   }
   const names = SECTIONS.flatMap(s => s.rules.map(r => r[0]));
-  $("bars").innerHTML = names.map((name, i) => {
+  $("rule-stats").innerHTML = names.map((name, i) => {
     const pct = Math.round(counts[i] / 30 * 100);
-    return `<div class="bar-row"><span class="name">${esc(name)}</span><span class="track"><i style="width:${pct}%"></i></span><span class="pct">${pct}%</span></div>`;
+    return `<div class="stat-row ${PHASE_OF[i]}"><span class="name">${esc(name)}</span><span class="track"><i style="width:${pct}%"></i></span><span class="pct">${pct} %</span></div>`;
   }).join("");
 }
+
+function showView(name) {
+  $("view-today").hidden = name !== "today";
+  $("view-history").hidden = name !== "history";
+  if (name === "history") renderHistory();
+  window.scrollTo(0, 0);
+}
+$("open-history").addEventListener("click", () => showView("history"));
+$("close-history").addEventListener("click", () => showView("today"));
 
 // ---------- backup ----------
 $("export").addEventListener("click", async () => {
@@ -484,33 +596,21 @@ $("import-file").addEventListener("change", async e => {
     save();
     renderToday();
     renderHistory();
-    toast("Backup importiert");
+    alert("Backup importiert.");
   } catch (err) {
     alert("Diese Datei ist kein gültiges Rules-Backup.");
   }
 });
 
-// ---------- nav, toast, lifecycle ----------
-document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
-  $("view-today").hidden = b.dataset.view !== "today";
-  $("view-history").hidden = b.dataset.view !== "history";
-  if (b.dataset.view === "history") renderHistory();
-  window.scrollTo(0, 0);
-}));
-
-let toastTimer;
-function toast(msg) {
-  $("toast").textContent = msg;
-  $("toast").classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => $("toast").classList.remove("show"), 1800);
-}
-
+// ---------- lifecycle ----------
 function refreshIfNewDay() {
-  if (keyOf(new Date()) !== todayKey) { renderToday(); if (!$("view-history").hidden) renderHistory(); }
+  if (keyOf(new Date()) === todayKey) return;
+  planTab = "today";
+  renderToday();
+  if (!$("view-history").hidden) renderHistory();
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshIfNewDay(); });
+window.addEventListener("focus", refreshIfNewDay);
 setInterval(refreshIfNewDay, 60000);
 
 renderToday();
